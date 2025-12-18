@@ -1079,9 +1079,12 @@
             }
 
             async init() {
-                // Initialize h5wasm
+                // Initialize h5wasm - must await ready before using File
                 if (!this.h5Module) {
                     this.h5Module = await h5wasm.ready;
+                    // Debug: log what's available
+                    log('h5wasm keys: ' + Object.keys(h5wasm).join(', '), 'info');
+                    log('Module keys: ' + Object.keys(this.h5Module).slice(0, 10).join(', ') + '...', 'info');
                     log('h5wasm initialized', 'info');
                 }
             }
@@ -1092,13 +1095,20 @@
                 const arrayBuffer = await file.arrayBuffer();
                 const uint8Array = new Uint8Array(arrayBuffer);
 
+                // Get FS from the module
+                const FS = this.h5Module.FS;
+
                 // Create a virtual file in emscripten's filesystem
                 const filename = 'temp_' + Date.now() + '.h5';
-                this.h5Module.FS.writeFile(filename, uint8Array);
+                FS.writeFile(filename, uint8Array);
 
                 try {
-                    // h5wasm.File is the constructor (not this.h5Module.File)
-                    const h5file = new h5wasm.File(filename, 'r');
+                    // After h5wasm.ready, h5wasm.File should be available
+                    const H5File = h5wasm.File;
+                    if (!H5File) {
+                        throw new Error('h5wasm.File not available after initialization');
+                    }
+                    const h5file = new H5File(filename, 'r');
 
                     // Detect file type and parse accordingly
                     const keys = h5file.keys();
