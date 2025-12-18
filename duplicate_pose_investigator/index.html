@@ -1212,50 +1212,114 @@
             }
 
             async parseNativeFormat(h5file) {
-                // Parse native .slp format - metadata is stored as JSON
+                // Parse native .slp format - metadata is stored as JSON in attrs
                 const metadataGroup = h5file.get('metadata');
                 if (!metadataGroup) {
                     throw new Error('No metadata found in .slp file');
                 }
 
-                // Try to get skeleton from metadata
-                let skeleton = null;
+                // Get metadata JSON from attributes
+                let metadata = null;
                 try {
-                    const skeletonJson = h5file.get('skeleton');
-                    if (skeletonJson) {
-                        const jsonStr = new TextDecoder().decode(skeletonJson.value);
-                        skeleton = JSON.parse(jsonStr);
+                    const metadataJson = metadataGroup.attrs['json'];
+                    if (metadataJson) {
+                        const jsonStr = typeof metadataJson === 'string' ? metadataJson :
+                            (metadataJson.value ? new TextDecoder().decode(metadataJson.value) : String(metadataJson));
+                        metadata = JSON.parse(jsonStr);
+                        log(`Parsed SLEAP metadata v${metadata.version || 'unknown'}`, 'info');
                     }
                 } catch (e) {
-                    log('Could not parse skeleton from .slp file', 'warn');
+                    log('Could not parse metadata JSON: ' + e.message, 'warn');
                 }
 
-                // Try to extract node names and edges from skeleton
-                if (skeleton && skeleton.nodes) {
-                    this.nodeNames = skeleton.nodes.map(n => n.name || n);
-                    if (skeleton.edges) {
-                        this.edges = skeleton.edges.map(e => [e.source || e[0], e.destination || e[1]]);
+                // Extract node names from metadata
+                if (metadata && metadata.nodes) {
+                    this.nodeNames = metadata.nodes.map(n => n.name || n);
+                    this.numNodes = this.nodeNames.length;
+                    log(`Found ${this.numNodes} nodes: ${this.nodeNames.join(', ')}`, 'info');
+                }
+
+                // Extract edges from skeleton links
+                if (metadata && metadata.skeletons && metadata.skeletons[0]) {
+                    const skeleton = metadata.skeletons[0];
+                    if (skeleton.links) {
+                        this.edges = skeleton.links.map(link => [link.source, link.target]);
+                        log(`Found ${this.edges.length} skeleton edges`, 'info');
                     }
                 }
 
-                // Parse predicted instances
-                const predPoints = h5file.get('pred_points') || h5file.get('points');
-                if (predPoints) {
-                    // This is more complex - would need to match with instances
-                    // For now, try to extract what we can
-                    const shape = predPoints.shape;
-                    log(`Found prediction points with shape: ${shape.join('x')}`, 'info');
+                // Parse track names
+                const tracksJson = h5file.get('tracks_json');
+                if (tracksJson) {
+                    const rawTracks = tracksJson.value;
+                    this.trackNames = Array.from(rawTracks).map(t => {
+                        try {
+                            const str = t instanceof Uint8Array ? new TextDecoder().decode(t) : String(t);
+                            const parsed = JSON.parse(str);
+                            return Array.isArray(parsed) ? parsed[1] : str;
+                        } catch (e) {
+                            return String(t);
+                        }
+                    });
+                    this.numTracks = this.trackNames.length;
+                    log(`Found ${this.numTracks} tracks`, 'info');
                 }
 
-                // Fallback: try to find tracks in the file
-                const tracksData = h5file.get('tracks');
-                if (tracksData) {
-                    await this.parseAnalysisFormat(h5file);
-                    return;
+                // Get frames, instances, and pred_points datasets
+                const framesData = h5file.get('frames');
+                const instancesData = h5file.get('instances');
+                const predPointsData = h5file.get('pred_points');
+
+                if (!framesData || !instancesData || !predPointsData) {
+                    throw new Error('Missing required datasets (frames, instances, or pred_points)');
                 }
 
-                // If we can't parse the native format fully, provide guidance
-                log('Native .slp format detected. For best results, export as Analysis HDF5 from SLEAP.', 'warn');
+                const frames = framesData.value;
+                const instances = instancesData.value;
+                const predPoints = predPointsData.value;
+
+                this.numFrames = frames.length;
+                log(`Processing ${this.numFrames} frames with ${instances.length} instances...`, 'info');
+
+                // Build poses per frame: [frame][track][node] = [x, y]
+                this.tracks = new Array(this.numFrames);
+
+                for (let f = 0; f < this.numFrames; f++) {
+                    // Initialize frame with NaN for all tracks/nodes
+                    this.tracks[f] = new Array(this.numTracks);
+                    for (let t = 0; t < this.numTracks; t++) {
+                        this.tracks[f][t] = new Array(this.numNodes);
+                        for (let n = 0; n < this.numNodes; n++) {
+                            this.tracks[f][t][n] = [NaN, NaN];
+                        }
+                    }
+
+                    // Get instances for this frame
+                    const frame = frames[f];
+                    const instStart = Number(frame.instance_id_start || frame[3]);
+                    const instEnd = Number(frame.instance_id_end || frame[4]);
+
+                    for (let i = instStart; i < instEnd && i < instances.length; i++) {
+                        const inst = instances[i];
+                        const trackIdx = Number(inst.track !== undefined ? inst.track : inst[4]);
+                        const pointStart = Number(inst.point_id_start !== undefined ? inst.point_id_start : inst[7]);
+                        const pointEnd = Number(inst.point_id_end !== undefined ? inst.point_id_end : inst[8]);
+
+                        if (trackIdx < 0 || trackIdx >= this.numTracks) continue;
+
+                        // Extract points for this instance
+                        for (let p = pointStart, nodeIdx = 0; p < pointEnd && nodeIdx < this.numNodes; p++, nodeIdx++) {
+                            if (p < predPoints.length) {
+                                const point = predPoints[p];
+                                const x = Number(point.x !== undefined ? point.x : point[0]);
+                                const y = Number(point.y !== undefined ? point.y : point[1]);
+                                this.tracks[f][trackIdx][nodeIdx] = [x, y];
+                            }
+                        }
+                    }
+                }
+
+                log(`Native .slp parsed: ${this.numNodes} nodes, ${this.numTracks} tracks, ${this.numFrames} frames`, 'success');
             }
 
             // Get poses for a specific frame
