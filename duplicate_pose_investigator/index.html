@@ -1082,6 +1082,7 @@
                 // Initialize h5wasm
                 if (!this.h5Module) {
                     this.h5Module = await h5wasm.ready;
+                    log('h5wasm initialized', 'info');
                 }
             }
 
@@ -1096,7 +1097,8 @@
                 this.h5Module.FS.writeFile(filename, uint8Array);
 
                 try {
-                    const h5file = new this.h5Module.File(filename, 'r');
+                    // h5wasm.File is the constructor (not this.h5Module.File)
+                    const h5file = new h5wasm.File(filename, 'r');
 
                     // Detect file type and parse accordingly
                     const keys = h5file.keys();
