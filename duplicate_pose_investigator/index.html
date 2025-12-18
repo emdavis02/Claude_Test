@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duplicate Pose Investigator</title>
-    <!-- h5wasm for reading HDF5/SLEAP files -->
-    <script src="https://cdn.jsdelivr.net/npm/h5wasm@0.7.5/dist/iife/h5wasm.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -1075,16 +1073,17 @@
                 this.numFrames = 0;
                 this.numNodes = 0;
                 this.numTracks = 0;
+                this.h5wasm = null;
                 this.h5Module = null;
             }
 
             async init() {
-                // Initialize h5wasm - must await ready before using File
+                // Initialize h5wasm using dynamic ESM import
                 if (!this.h5Module) {
-                    this.h5Module = await h5wasm.ready;
-                    // Debug: log what's available
-                    log('h5wasm keys: ' + Object.keys(h5wasm).join(', '), 'info');
-                    log('Module keys: ' + Object.keys(this.h5Module).slice(0, 10).join(', ') + '...', 'info');
+                    log('Loading h5wasm module...', 'info');
+                    const h5wasmModule = await import('https://cdn.jsdelivr.net/npm/h5wasm@0.7.5/dist/esm/hdf5_hl.js');
+                    this.h5wasm = h5wasmModule.default || h5wasmModule;
+                    this.h5Module = await this.h5wasm.ready;
                     log('h5wasm initialized', 'info');
                 }
             }
@@ -1103,12 +1102,8 @@
                 FS.writeFile(filename, uint8Array);
 
                 try {
-                    // After h5wasm.ready, h5wasm.File should be available
-                    const H5File = h5wasm.File;
-                    if (!H5File) {
-                        throw new Error('h5wasm.File not available after initialization');
-                    }
-                    const h5file = new H5File(filename, 'r');
+                    // Use h5wasm.File constructor
+                    const h5file = new this.h5wasm.File(filename, 'r');
 
                     // Detect file type and parse accordingly
                     const keys = h5file.keys();
