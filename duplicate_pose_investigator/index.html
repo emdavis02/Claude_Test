@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duplicate Pose Investigator</title>
+    <!-- h5wasm for reading HDF5/SLEAP files -->
+    <script src="https://cdn.jsdelivr.net/npm/h5wasm@0.7.5/dist/iife/h5wasm.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -299,6 +301,80 @@
         .log-msg.success { color: #4ade80; }
         .log-msg.warn { color: #fbbf24; }
         .log-msg.error { color: #ff6b6b; }
+        .pose-controls {
+            background: #2a2a2a;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .pose-controls h3 {
+            margin: 0 0 10px 0;
+            color: #fff;
+            font-size: 14px;
+        }
+        .pose-controls-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .pose-controls label {
+            color: #aaa;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .pose-controls input[type="number"] {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            width: 60px;
+            font-size: 12px;
+        }
+        .pose-controls input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        .pose-controls input[type="color"] {
+            width: 30px;
+            height: 24px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pose-status {
+            font-size: 12px;
+            color: #4ade80;
+            margin-top: 10px;
+        }
+        .pose-status.none {
+            color: #aaa;
+        }
+        .track-toggles {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .track-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        .track-toggle .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
         @media (max-width: 600px) {
             body { padding: 10px; }
             .controls, .settings, .metrics { padding: 10px 15px; }
@@ -309,11 +385,13 @@
 <body>
     <div class="container">
         <h1>Duplicate Pose Investigator</h1>
-        <p class="description">Load local videos with frame-accurate seeking, zoom/pan, and playback controls. Uses WebCodecs API for fast decoding.</p>
+        <p class="description">Frame-accurate video player with SLEAP pose overlay. Load videos and .slp/.h5 pose data to visualize tracked poses frame-by-frame.</p>
 
         <div class="controls">
             <input type="file" id="fileInput" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.m4v,.webm" style="display: none;">
+            <input type="file" id="poseFileInput" accept=".slp,.h5,.hdf5" style="display: none;">
             <button id="loadBtn">Load Video File</button>
+            <button id="loadPoseBtn">Load Pose Data (.slp/.h5)</button>
             <button id="loadUrlBtn">Load from URL</button>
             <button id="playBtn" disabled>Play</button>
             <button id="resetZoomBtn" disabled>Reset Zoom</button>
@@ -368,6 +446,23 @@
             </div>
         </div>
 
+        <div class="pose-controls" id="poseControls" style="display: none;">
+            <h3>Pose Overlay Settings</h3>
+            <div class="pose-controls-row">
+                <label><input type="checkbox" id="showPoses" checked> Show Poses</label>
+                <label><input type="checkbox" id="showNodes" checked> Nodes</label>
+                <label><input type="checkbox" id="showEdges" checked> Edges</label>
+                <label><input type="checkbox" id="showLabels"> Node Labels</label>
+            </div>
+            <div class="pose-controls-row">
+                <label>Node Size: <input type="number" id="nodeSize" value="6" min="1" max="20"></label>
+                <label>Edge Width: <input type="number" id="edgeWidth" value="2" min="1" max="10"></label>
+                <label>Opacity: <input type="number" id="poseOpacity" value="100" min="0" max="100" step="10">%</label>
+            </div>
+            <div class="pose-status" id="poseStatus">No pose data loaded</div>
+            <div class="track-toggles" id="trackToggles"></div>
+        </div>
+
         <div class="diagnostic-console" id="diagnosticConsole">
             <div class="diagnostic-console-header">
                 <h3>Diagnostic Log</h3>
@@ -384,6 +479,7 @@
                 <div class="hotkey"><span class="hotkey-key">Ctrl+← / →</span><span class="hotkey-desc">±30 frames</span></div>
                 <div class="hotkey"><span class="hotkey-key">Ctrl+↑ / ↓</span><span class="hotkey-desc">±100 frames</span></div>
                 <div class="hotkey"><span class="hotkey-key">Space</span><span class="hotkey-desc">Play/Pause</span></div>
+                <div class="hotkey"><span class="hotkey-key">P</span><span class="hotkey-desc">Toggle Poses</span></div>
                 <div class="hotkey"><span class="hotkey-key">Mouse Wheel</span><span class="hotkey-desc">Zoom</span></div>
                 <div class="hotkey"><span class="hotkey-key">Click + Drag</span><span class="hotkey-desc">Pan</span></div>
             </div>
@@ -966,10 +1062,232 @@
         }
 
         // ============================================
+        // SLEAP Pose Data Loader
+        // Supports .slp (native SLEAP) and .h5 (analysis export) formats
+        // ============================================
+        class SLEAPLoader {
+            constructor() {
+                this.nodeNames = [];
+                this.trackNames = [];
+                this.edges = [];
+                this.tracks = null;  // Shape: [frames, nodes, 2, tracks] after processing
+                this.trackOccupancy = null;
+                this.numFrames = 0;
+                this.numNodes = 0;
+                this.numTracks = 0;
+                this.h5Module = null;
+            }
+
+            async init() {
+                // Initialize h5wasm
+                if (!this.h5Module) {
+                    this.h5Module = await h5wasm.ready;
+                }
+            }
+
+            async loadFile(file) {
+                await this.init();
+
+                const arrayBuffer = await file.arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+
+                // Create a virtual file in emscripten's filesystem
+                const filename = 'temp_' + Date.now() + '.h5';
+                this.h5Module.FS.writeFile(filename, uint8Array);
+
+                try {
+                    const h5file = new this.h5Module.File(filename, 'r');
+
+                    // Detect file type and parse accordingly
+                    const keys = h5file.keys();
+                    log(`HDF5 file contains: ${keys.join(', ')}`, 'info');
+
+                    if (keys.includes('tracks') && keys.includes('node_names')) {
+                        // Analysis HDF5 format
+                        await this.parseAnalysisFormat(h5file);
+                    } else if (keys.includes('metadata')) {
+                        // Native .slp format
+                        await this.parseNativeFormat(h5file);
+                    } else {
+                        throw new Error('Unknown SLEAP file format');
+                    }
+
+                    h5file.close();
+                } finally {
+                    // Clean up virtual file
+                    try {
+                        this.h5Module.FS.unlink(filename);
+                    } catch (e) {}
+                }
+
+                return {
+                    nodeNames: this.nodeNames,
+                    trackNames: this.trackNames,
+                    edges: this.edges,
+                    numFrames: this.numFrames,
+                    numNodes: this.numNodes,
+                    numTracks: this.numTracks
+                };
+            }
+
+            async parseAnalysisFormat(h5file) {
+                // Read node names
+                const nodeNamesData = h5file.get('node_names');
+                if (nodeNamesData) {
+                    const rawNames = nodeNamesData.value;
+                    this.nodeNames = Array.from(rawNames).map(n => {
+                        if (n instanceof Uint8Array) {
+                            return new TextDecoder().decode(n);
+                        }
+                        return String(n);
+                    });
+                }
+                this.numNodes = this.nodeNames.length;
+
+                // Read track names
+                const trackNamesData = h5file.get('track_names');
+                if (trackNamesData) {
+                    const rawNames = trackNamesData.value;
+                    this.trackNames = Array.from(rawNames).map(n => {
+                        if (n instanceof Uint8Array) {
+                            return new TextDecoder().decode(n);
+                        }
+                        return String(n);
+                    });
+                }
+
+                // Read tracks data - stored as (tracks, 2, nodes, frames) in MATLAB order
+                const tracksData = h5file.get('tracks');
+                if (tracksData) {
+                    const shape = tracksData.shape;  // [tracks, 2, nodes, frames] in MATLAB/column-major
+                    const rawData = tracksData.value;
+
+                    // Convert to JS-friendly format: [frames][tracks][nodes][x,y]
+                    // MATLAB stores column-major, so actual order is reversed
+                    const numTracks = shape[0];
+                    const numCoords = shape[1];  // 2 (x, y)
+                    const numNodes = shape[2];
+                    const numFrames = shape[3];
+
+                    this.numFrames = numFrames;
+                    this.numTracks = numTracks;
+
+                    // Reshape the data
+                    this.tracks = new Array(numFrames);
+                    for (let f = 0; f < numFrames; f++) {
+                        this.tracks[f] = new Array(numTracks);
+                        for (let t = 0; t < numTracks; t++) {
+                            this.tracks[f][t] = new Array(numNodes);
+                            for (let n = 0; n < numNodes; n++) {
+                                // Index calculation for column-major order
+                                const xIdx = t + numTracks * (0 + numCoords * (n + numNodes * f));
+                                const yIdx = t + numTracks * (1 + numCoords * (n + numNodes * f));
+                                this.tracks[f][t][n] = [rawData[xIdx], rawData[yIdx]];
+                            }
+                        }
+                    }
+                }
+
+                // Generate default edges (connect sequential nodes) if no edge info
+                if (this.edges.length === 0 && this.numNodes > 1) {
+                    for (let i = 0; i < this.numNodes - 1; i++) {
+                        this.edges.push([i, i + 1]);
+                    }
+                }
+
+                // Read edge indices if available
+                const edgeInds = h5file.get('edge_inds');
+                if (edgeInds) {
+                    const rawEdges = edgeInds.value;
+                    const shape = edgeInds.shape;
+                    // Edges are stored as [2, numEdges] - pairs of (src, dst)
+                    const numEdges = shape[1] || rawEdges.length / 2;
+                    this.edges = [];
+                    for (let i = 0; i < numEdges; i++) {
+                        this.edges.push([rawEdges[i], rawEdges[numEdges + i]]);
+                    }
+                }
+
+                log(`Parsed analysis format: ${this.numNodes} nodes, ${this.numTracks} tracks, ${this.numFrames} frames`, 'success');
+            }
+
+            async parseNativeFormat(h5file) {
+                // Parse native .slp format - metadata is stored as JSON
+                const metadataGroup = h5file.get('metadata');
+                if (!metadataGroup) {
+                    throw new Error('No metadata found in .slp file');
+                }
+
+                // Try to get skeleton from metadata
+                let skeleton = null;
+                try {
+                    const skeletonJson = h5file.get('skeleton');
+                    if (skeletonJson) {
+                        const jsonStr = new TextDecoder().decode(skeletonJson.value);
+                        skeleton = JSON.parse(jsonStr);
+                    }
+                } catch (e) {
+                    log('Could not parse skeleton from .slp file', 'warn');
+                }
+
+                // Try to extract node names and edges from skeleton
+                if (skeleton && skeleton.nodes) {
+                    this.nodeNames = skeleton.nodes.map(n => n.name || n);
+                    if (skeleton.edges) {
+                        this.edges = skeleton.edges.map(e => [e.source || e[0], e.destination || e[1]]);
+                    }
+                }
+
+                // Parse predicted instances
+                const predPoints = h5file.get('pred_points') || h5file.get('points');
+                if (predPoints) {
+                    // This is more complex - would need to match with instances
+                    // For now, try to extract what we can
+                    const shape = predPoints.shape;
+                    log(`Found prediction points with shape: ${shape.join('x')}`, 'info');
+                }
+
+                // Fallback: try to find tracks in the file
+                const tracksData = h5file.get('tracks');
+                if (tracksData) {
+                    await this.parseAnalysisFormat(h5file);
+                    return;
+                }
+
+                // If we can't parse the native format fully, provide guidance
+                log('Native .slp format detected. For best results, export as Analysis HDF5 from SLEAP.', 'warn');
+            }
+
+            // Get poses for a specific frame
+            getPosesForFrame(frameIndex) {
+                if (!this.tracks || frameIndex < 0 || frameIndex >= this.numFrames) {
+                    return null;
+                }
+                return this.tracks[frameIndex];
+            }
+
+            // Check if a point is valid (not NaN)
+            isValidPoint(point) {
+                return point && !isNaN(point[0]) && !isNaN(point[1]);
+            }
+        }
+
+        // ============================================
         // Video Player UI
         // ============================================
 
         let videoDecoder = null;
+        let sleapLoader = null;
+        let poseData = null;
+
+        // Pose rendering settings
+        const trackColors = [
+            '#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3',
+            '#f38181', '#aa96da', '#fcbad3', '#a8d8ea',
+            '#ff9a8b', '#88d8b0', '#ffcc5c', '#96ceb4'
+        ];
+        let visibleTracks = new Set();
+
         let currentFrame = 0;
         let totalFrames = 0;
         let fps = 0;
@@ -1259,6 +1577,106 @@
             }
         });
 
+        // ============================================
+        // Pose Data Loading
+        // ============================================
+        const loadPoseBtn = document.getElementById('loadPoseBtn');
+        const poseFileInput = document.getElementById('poseFileInput');
+        const poseControls = document.getElementById('poseControls');
+        const poseStatus = document.getElementById('poseStatus');
+        const trackToggles = document.getElementById('trackToggles');
+
+        loadPoseBtn.addEventListener('click', () => {
+            poseFileInput.click();
+        });
+
+        poseFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            log(`Loading pose data: ${file.name}`, 'info');
+
+            try {
+                sleapLoader = new SLEAPLoader();
+                poseData = await sleapLoader.loadFile(file);
+
+                // Show pose controls
+                poseControls.style.display = 'block';
+
+                // Update status
+                poseStatus.textContent = `Loaded: ${poseData.numNodes} nodes, ${poseData.numTracks} tracks, ${poseData.numFrames} frames`;
+                poseStatus.className = 'pose-status';
+
+                // Initialize visible tracks
+                visibleTracks = new Set();
+                for (let i = 0; i < poseData.numTracks; i++) {
+                    visibleTracks.add(i);
+                }
+
+                // Create track toggles
+                updateTrackToggles();
+
+                log(`Pose data loaded: ${poseData.nodeNames.join(', ')}`, 'success');
+
+                // Re-render current frame to show poses
+                if (currentBitmap) {
+                    renderFrame(currentBitmap);
+                }
+
+            } catch (err) {
+                console.error('Error loading pose data:', err);
+                log(`Error loading pose data: ${err.message}`, 'error');
+                showError('Error loading pose data: ' + err.message);
+            }
+        });
+
+        function updateTrackToggles() {
+            trackToggles.innerHTML = '';
+            if (!poseData) return;
+
+            for (let i = 0; i < poseData.numTracks; i++) {
+                const toggle = document.createElement('label');
+                toggle.className = 'track-toggle';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = visibleTracks.has(i);
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        visibleTracks.add(i);
+                    } else {
+                        visibleTracks.delete(i);
+                    }
+                    if (currentBitmap) renderFrame(currentBitmap);
+                });
+
+                const colorDot = document.createElement('div');
+                colorDot.className = 'color-dot';
+                colorDot.style.background = trackColors[i % trackColors.length];
+
+                const label = document.createElement('span');
+                label.textContent = poseData.trackNames[i] || `Track ${i + 1}`;
+
+                toggle.appendChild(checkbox);
+                toggle.appendChild(colorDot);
+                toggle.appendChild(label);
+                trackToggles.appendChild(toggle);
+            }
+        }
+
+        // Pose rendering settings change handlers
+        ['showPoses', 'showNodes', 'showEdges', 'showLabels'].forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                if (currentBitmap) renderFrame(currentBitmap);
+            });
+        });
+
+        ['nodeSize', 'edgeWidth', 'poseOpacity'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                if (currentBitmap) renderFrame(currentBitmap);
+            });
+        });
+
         // Seek to specific frame (with wraparound)
         async function seekToFrame(frameIndex) {
             if (!videoDecoder) return;
@@ -1304,7 +1722,83 @@
             ctx.translate(offsetX, offsetY);
             ctx.scale(scale, scale);
             ctx.drawImage(bitmap, 0, 0);
+
+            // Render poses on top of video
+            if (sleapLoader && poseData && document.getElementById('showPoses').checked) {
+                renderPoses(ctx, currentFrame);
+            }
+
             ctx.restore();
+        }
+
+        // ============================================
+        // Pose Rendering
+        // ============================================
+        function renderPoses(ctx, frameIndex) {
+            const framePoses = sleapLoader.getPosesForFrame(frameIndex);
+            if (!framePoses) return;
+
+            const showNodes = document.getElementById('showNodes').checked;
+            const showEdges = document.getElementById('showEdges').checked;
+            const showLabels = document.getElementById('showLabels').checked;
+            const nodeSize = parseInt(document.getElementById('nodeSize').value) || 6;
+            const edgeWidth = parseInt(document.getElementById('edgeWidth').value) || 2;
+            const opacity = (parseInt(document.getElementById('poseOpacity').value) || 100) / 100;
+
+            ctx.globalAlpha = opacity;
+
+            // Iterate through each track
+            for (let trackIdx = 0; trackIdx < framePoses.length; trackIdx++) {
+                if (!visibleTracks.has(trackIdx)) continue;
+
+                const trackNodes = framePoses[trackIdx];
+                const color = trackColors[trackIdx % trackColors.length];
+
+                // Draw edges first (behind nodes)
+                if (showEdges && sleapLoader.edges.length > 0) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = edgeWidth;
+                    ctx.lineCap = 'round';
+
+                    for (const [srcIdx, dstIdx] of sleapLoader.edges) {
+                        if (srcIdx >= trackNodes.length || dstIdx >= trackNodes.length) continue;
+
+                        const srcPoint = trackNodes[srcIdx];
+                        const dstPoint = trackNodes[dstIdx];
+
+                        if (!sleapLoader.isValidPoint(srcPoint) || !sleapLoader.isValidPoint(dstPoint)) continue;
+
+                        ctx.beginPath();
+                        ctx.moveTo(srcPoint[0], srcPoint[1]);
+                        ctx.lineTo(dstPoint[0], dstPoint[1]);
+                        ctx.stroke();
+                    }
+                }
+
+                // Draw nodes
+                if (showNodes) {
+                    ctx.fillStyle = color;
+
+                    for (let nodeIdx = 0; nodeIdx < trackNodes.length; nodeIdx++) {
+                        const point = trackNodes[nodeIdx];
+                        if (!sleapLoader.isValidPoint(point)) continue;
+
+                        ctx.beginPath();
+                        ctx.arc(point[0], point[1], nodeSize, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Draw node labels
+                        if (showLabels && sleapLoader.nodeNames[nodeIdx]) {
+                            ctx.fillStyle = '#fff';
+                            ctx.font = `${Math.max(10, nodeSize * 2)}px system-ui`;
+                            ctx.fillText(sleapLoader.nodeNames[nodeIdx], point[0] + nodeSize + 2, point[1] + 4);
+                            ctx.fillStyle = color;
+                        }
+                    }
+                }
+            }
+
+            ctx.globalAlpha = 1;
         }
 
         // Update metrics display
@@ -1349,6 +1843,12 @@
                 e.preventDefault();
             } else if (e.key === ' ') {
                 togglePlayback();
+                e.preventDefault();
+            } else if (e.key === 'p' || e.key === 'P') {
+                // Toggle pose overlay
+                const showPoses = document.getElementById('showPoses');
+                showPoses.checked = !showPoses.checked;
+                if (currentBitmap) renderFrame(currentBitmap);
                 e.preventDefault();
             }
 
