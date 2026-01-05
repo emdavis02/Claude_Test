@@ -612,8 +612,20 @@
                 try {
                     const metadataJson = metadataGroup.attrs['json'];
                     if (metadataJson) {
-                        const jsonStr = typeof metadataJson === 'string' ? metadataJson :
-                            (metadataJson.value ? new TextDecoder().decode(metadataJson.value) : String(metadataJson));
+                        let jsonStr;
+                        if (typeof metadataJson === 'string') {
+                            jsonStr = metadataJson;
+                        } else if (metadataJson.value instanceof Uint8Array) {
+                            jsonStr = new TextDecoder().decode(metadataJson.value);
+                        } else if (metadataJson.value instanceof ArrayBuffer) {
+                            jsonStr = new TextDecoder().decode(new Uint8Array(metadataJson.value));
+                        } else if (ArrayBuffer.isView(metadataJson.value)) {
+                            jsonStr = new TextDecoder().decode(new Uint8Array(metadataJson.value.buffer));
+                        } else if (metadataJson instanceof Uint8Array) {
+                            jsonStr = new TextDecoder().decode(metadataJson);
+                        } else {
+                            jsonStr = String(metadataJson.value || metadataJson);
+                        }
                         metadata = JSON.parse(jsonStr);
                     }
                 } catch (e) { log('Could not parse metadata: ' + e.message, 'warn'); }
@@ -651,6 +663,21 @@
                 const instances = instancesData.value;
                 const predPoints = predPointsData.value;
                 this.numFrames = frames.length;
+
+                // Infer numNodes from instances if metadata parsing failed
+                if (this.numNodes === 0 && instances.length > 0) {
+                    const inst = instances[0];
+                    const pointStart = Number(inst.point_id_start !== undefined ? inst.point_id_start : inst[7]);
+                    const pointEnd = Number(inst.point_id_end !== undefined ? inst.point_id_end : inst[8]);
+                    this.numNodes = pointEnd - pointStart;
+                    log(`Inferred ${this.numNodes} nodes from instance data`, 'info');
+
+                    // Generate default node names
+                    this.nodeNames = [];
+                    for (let i = 0; i < this.numNodes; i++) {
+                        this.nodeNames.push(`node_${i}`);
+                    }
+                }
 
                 this.tracks = new Array(this.numFrames);
                 for (let f = 0; f < this.numFrames; f++) {
