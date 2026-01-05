@@ -17,15 +17,17 @@
         }
         h1 { margin-bottom: 0.5rem; color: #fff; }
         .description { color: #aaa; margin-top: 0; }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .controls {
+        .container { max-width: 1200px; margin: 0 auto; }
+        .panel {
             background: #2a2a2a;
             padding: 20px;
             border-radius: 8px;
-            margin: 20px 0;
+            margin: 15px 0;
+        }
+        .panel h3 {
+            margin: 0 0 15px 0;
+            color: #fff;
+            font-size: 16px;
         }
         button {
             background: #667eea;
@@ -38,182 +40,70 @@
             margin: 5px;
         }
         button:hover { background: #5568d3; }
-        button:disabled {
+        button:disabled { background: #444; cursor: not-allowed; }
+        .btn-duplicate { background: #22c55e; }
+        .btn-duplicate:hover { background: #16a34a; }
+        .btn-not-duplicate { background: #ef4444; }
+        .btn-not-duplicate:hover { background: #dc2626; }
+        .btn-skip { background: #666; }
+        .btn-skip:hover { background: #555; }
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .status-text { color: #aaa; font-size: 14px; }
+        .status-text.ready { color: #4ade80; }
+        .status-text.error { color: #ff6b6b; }
+        .progress-container { margin-top: 10px; display: none; }
+        .progress-bar {
+            height: 6px;
             background: #444;
-            cursor: not-allowed;
-        }
-        button.small {
-            padding: 4px 8px;
-            font-size: 11px;
-            margin: 2px;
-        }
-        button.small.active {
-            background: #4ade80;
-        }
-        .canvas-container {
-            position: relative;
-            background: #000;
-            border-radius: 8px;
+            border-radius: 3px;
             overflow: hidden;
-            margin: 20px 0;
-            cursor: grab;
         }
-        .canvas-container:active { cursor: grabbing; }
-        canvas {
-            display: block;
-            width: 100%;
-            height: auto;
-            image-rendering: crisp-edges;
-        }
-        .seekbar-container {
-            background: #2a2a2a;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .seekbar {
-            width: 100%;
-            height: 8px;
-            background: #444;
-            border-radius: 4px;
-            position: relative;
-            cursor: pointer;
-            margin: 10px 0;
-        }
-        .seekbar-progress {
+        .progress-fill {
             height: 100%;
             background: #667eea;
-            border-radius: 4px;
             width: 0%;
-            pointer-events: none;
+            transition: width 0.2s;
         }
-        .seekbar-thumb {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            background: white;
-            border-radius: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            left: 0%;
-            pointer-events: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .metrics {
-            background: #2a2a2a;
-            padding: 15px 20px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            color: #aaa;
-            margin: 20px 0;
-        }
-        .metrics-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .metric {
-            margin: 5px 0;
-        }
-        .metric-label {
-            color: #667eea;
-            font-weight: bold;
-        }
-        .url-input-container {
-            background: #2a2a2a;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 10px 0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .url-input-container input[type="text"] {
-            flex: 1;
-            background: #1a1a1a;
-            border: 1px solid #444;
-            color: #e0e0e0;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .url-input-container input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .url-input-container button {
-            padding: 10px 16px;
-            margin: 0;
-        }
-        .error-msg {
-            background: #4a2020;
-            border: 1px solid #ff6b6b;
-            color: #ff6b6b;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: none;
-        }
-        .cache-viz-container {
-            background: #2a2a2a;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .cache-viz-header {
+        .progress-text { font-size: 12px; color: #aaa; margin-top: 5px; }
+        #histogramCanvas { width: 100%; max-height: 300px; }
+        .histogram-help { font-size: 12px; color: #888; margin-top: 10px; }
+        .annotation-info {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
             flex-wrap: wrap;
             gap: 10px;
         }
-        .cache-viz-header h3 {
-            margin: 0;
-            color: #fff;
+        .annotation-info span { color: #e0e0e0; }
+        .annotation-info .iou-value { color: #667eea; font-weight: bold; }
+        #annotationCanvas {
+            display: block;
+            max-width: 100%;
+            max-height: 400px;
+            margin: 0 auto;
+            border-radius: 4px;
+            background: #000;
+        }
+        .annotation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .annotation-buttons button { min-width: 180px; }
+        .summary-stats {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
             font-size: 14px;
         }
-        .cache-viz-settings {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        .cache-viz-settings label {
-            color: #aaa;
-            font-size: 12px;
-        }
-        .cache-viz-settings input[type="number"] {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            color: #e0e0e0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            width: 70px;
-            font-size: 12px;
-        }
-        .cache-viz-legend {
-            display: flex;
-            gap: 15px;
-            font-size: 11px;
-            color: #aaa;
-        }
-        .cache-viz-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .cache-viz-legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-        }
-        .cache-viz-canvas {
-            width: 100%;
-            height: 24px;
-            border-radius: 4px;
-            cursor: crosshair;
-        }
+        .summary-stats .stat { display: flex; gap: 8px; }
+        .summary-stats .stat-label { color: #888; }
+        .summary-stats .stat-value { color: #fff; font-weight: bold; }
+        .summary-stats .stat-value.duplicate { color: #22c55e; }
+        .summary-stats .stat-value.not-duplicate { color: #ef4444; }
         .diagnostic-console {
             background: #1a1a1a;
             border: 1px solid #333;
@@ -230,252 +120,16 @@
             justify-content: space-between;
             align-items: center;
         }
-        .diagnostic-console-header h3 {
-            margin: 0;
-            color: #fff;
-            font-size: 12px;
-        }
-        .diagnostic-console-header button {
-            background: #444;
-            padding: 4px 10px;
-            font-size: 11px;
-            margin: 0;
-        }
-        .diagnostic-console-body {
-            height: 120px;
-            overflow-y: auto;
-            padding: 10px 15px;
-        }
-        .log-entry {
-            margin: 2px 0;
-            display: flex;
-            gap: 10px;
-        }
-        .log-time {
-            color: #666;
-            flex-shrink: 0;
-        }
+        .diagnostic-console-header h3 { margin: 0; color: #fff; font-size: 12px; }
+        .diagnostic-console-header button { background: #444; padding: 4px 10px; font-size: 11px; margin: 0; }
+        .diagnostic-console-body { height: 100px; overflow-y: auto; padding: 10px 15px; }
+        .log-entry { margin: 2px 0; display: flex; gap: 10px; }
+        .log-time { color: #666; flex-shrink: 0; }
         .log-msg { color: #aaa; }
         .log-msg.info { color: #667eea; }
         .log-msg.success { color: #4ade80; }
         .log-msg.warn { color: #fbbf24; }
         .log-msg.error { color: #ff6b6b; }
-        .pose-controls {
-            background: #2a2a2a;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .pose-controls h3 {
-            margin: 0 0 10px 0;
-            color: #fff;
-            font-size: 14px;
-        }
-        .pose-controls-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-        .pose-controls label {
-            color: #aaa;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .pose-controls input[type="number"] {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            color: #e0e0e0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            width: 60px;
-            font-size: 12px;
-        }
-        .pose-controls input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-        }
-        .pose-status {
-            font-size: 12px;
-            color: #4ade80;
-            margin-top: 10px;
-        }
-        .pose-status.none {
-            color: #aaa;
-        }
-        .track-toggles {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        .track-toggle {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 8px;
-            background: #1a1a1a;
-            border-radius: 4px;
-            font-size: 11px;
-        }
-        .track-toggle .color-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        /* Histogram grid */
-        .histograms-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .histogram-panel {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        .histogram-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .histogram-header h4 {
-            margin: 0;
-            color: #fff;
-            font-size: 13px;
-        }
-        .histogram-controls {
-            display: flex;
-            gap: 5px;
-        }
-        .histogram-canvas {
-            width: 100%;
-            height: 150px;
-        }
-        .histogram-stats {
-            font-size: 11px;
-            color: #aaa;
-            margin-top: 8px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .threshold-controls {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #444;
-        }
-        .threshold-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .threshold-row input[type="number"] {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            color: #e0e0e0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            width: 80px;
-            font-size: 12px;
-        }
-        .threshold-row select {
-            background: #1a1a1a;
-            border: 1px solid #444;
-            color: #e0e0e0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        .threshold-list {
-            margin-top: 8px;
-            font-size: 11px;
-        }
-        .threshold-item {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            padding: 4px 0;
-        }
-        .threshold-item .remove-btn {
-            background: #ff6b6b;
-            padding: 2px 6px;
-            font-size: 10px;
-        }
-        /* Split panel for annotation and precision/accuracy */
-        .split-panel-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        @media (max-width: 900px) {
-            .split-panel-container {
-                grid-template-columns: 1fr;
-            }
-        }
-        .annotation-panel {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        .annotation-panel h3 {
-            margin: 0 0 15px 0;
-            color: #fff;
-        }
-        .pair-info {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-        .pair-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-            font-size: 13px;
-        }
-        .pair-info-label { color: #888; }
-        .pair-info-value { color: #fff; font-family: monospace; }
-        .annotation-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .annotation-buttons button {
-            flex: 1;
-            min-width: 100px;
-        }
-        .annotation-buttons .duplicate-btn { background: #ff6b6b; }
-        .annotation-buttons .duplicate-btn:hover { background: #e55555; }
-        .annotation-buttons .not-duplicate-btn { background: #4ade80; }
-        .annotation-buttons .not-duplicate-btn:hover { background: #3bc970; }
-        .annotation-buttons .skip-btn { background: #666; }
-        .annotation-buttons .skip-btn:hover { background: #555; }
-        .annotation-progress {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #aaa;
-        }
-        .precision-accuracy-panel {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        .precision-accuracy-panel h3 {
-            margin: 0 0 15px 0;
-            color: #fff;
-        }
-        .precision-accuracy-canvas {
-            width: 100%;
-            height: 300px;
-        }
         .hotkeys {
             background: #2a2a2a;
             padding: 15px 20px;
@@ -483,30 +137,28 @@
             margin: 20px 0;
             font-size: 14px;
         }
-        .hotkeys h3 {
-            margin-top: 0;
-            color: #fff;
-        }
+        .hotkeys h3 { margin-top: 0; color: #fff; }
         .hotkeys-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 8px 20px;
         }
-        .hotkey {
-            display: flex;
-            gap: 10px;
+        .hotkey { display: flex; gap: 10px; }
+        .hotkey-key { color: #667eea; font-family: 'Courier New', monospace; min-width: 40px; }
+        .hotkey-desc { color: #aaa; }
+        .error-msg {
+            background: #4a2020;
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
         }
-        .hotkey-key {
-            color: #667eea;
-            font-family: 'Courier New', monospace;
-            min-width: 100px;
-        }
-        .hotkey-desc {
-            color: #aaa;
-        }
+        .hidden { display: none !important; }
         @media (max-width: 600px) {
             body { padding: 10px; }
-            .controls, .metrics { padding: 10px 15px; }
+            .panel { padding: 15px; }
             button { padding: 10px 16px; font-size: 14px; }
         }
     </style>
@@ -514,115 +166,64 @@
 <body>
     <div class="container">
         <h1>Duplicate Pose Investigator</h1>
-        <p class="description">Investigate and annotate duplicate pose detections in SLEAP tracking data. Compute IOU, centroid distances, and tracking scores for pose pairs, then label them to evaluate threshold-based filtering rules.</p>
+        <p class="description">Identify duplicate poses (multiple detections of the same animal) by analyzing bounding box IOU between pose pairs.</p>
 
-        <div class="controls">
-            <input type="file" id="fileInput" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.m4v,.webm" style="display: none;">
-            <input type="file" id="poseFileInput" accept=".slp,.h5,.hdf5" style="display: none;">
-            <button id="loadBtn">Load Video File</button>
-            <button id="loadPoseBtn">Load Pose Data (.slp/.h5)</button>
-            <button id="loadUrlBtn">Load from URL</button>
-            <button id="playBtn" disabled>Play</button>
-            <button id="resetZoomBtn" disabled>Reset Zoom</button>
-        </div>
-        <div class="url-input-container" id="urlInputContainer" style="display: none;">
-            <input type="text" id="urlInput" placeholder="Enter video URL (must support CORS)">
-            <button id="urlLoadBtn">Load</button>
-            <button id="urlCancelBtn">Cancel</button>
+        <!-- File Loading -->
+        <div class="panel">
+            <div class="controls">
+                <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.m4v,.webm" style="display: none;">
+                <input type="file" id="poseFileInput" accept=".slp,.h5,.hdf5" style="display: none;">
+                <button id="loadVideoBtn">Load Video</button>
+                <button id="loadPoseBtn">Load Poses (.slp/.h5)</button>
+                <button id="computeBtn" disabled>Compute IOUs</button>
+            </div>
+            <div class="status-text" id="statusText">Load video and pose files to begin</div>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="progress-text" id="progressText">Computing...</div>
+            </div>
         </div>
 
         <div class="error-msg" id="errorMsg"></div>
 
-        <div class="canvas-container" id="canvasContainer" style="display: none;">
-            <canvas id="canvas"></canvas>
+        <!-- Histogram Panel -->
+        <div class="panel hidden" id="histogramPanel">
+            <h3>IOU Distribution</h3>
+            <canvas id="histogramCanvas"></canvas>
+            <div class="histogram-help">Click on bars to sample pose pairs from that IOU range. Green/red dots show your labels.</div>
         </div>
 
-        <div class="seekbar-container" id="seekbarContainer" style="display: none;">
-            <div class="seekbar" id="seekbar">
-                <div class="seekbar-progress" id="seekbarProgress"></div>
-                <div class="seekbar-thumb" id="seekbarThumb"></div>
+        <!-- Annotation Panel -->
+        <div class="panel hidden" id="annotationPanel">
+            <h3>Pose Pair Annotation</h3>
+            <div class="annotation-info">
+                <span id="pairInfo">Frame: -- | Tracks: -- vs --</span>
+                <span>IOU: <span class="iou-value" id="pairIOU">--</span></span>
             </div>
-        </div>
-
-        <div class="cache-viz-container" id="cacheVizContainer" style="display: none;">
-            <div class="cache-viz-header">
-                <h3>Frame Cache</h3>
-                <div class="cache-viz-settings">
-                    <label>Cache Size: <input type="number" id="bufferSize" value="60" min="10" max="500"></label>
-                    <label>Lookahead: <input type="number" id="lookaheadSize" value="10" min="1" max="100"></label>
-                </div>
-                <div class="cache-viz-legend">
-                    <div class="cache-viz-legend-item"><div class="cache-viz-legend-color" style="background: #4ade80;"></div> Cached</div>
-                    <div class="cache-viz-legend-item"><div class="cache-viz-legend-color" style="background: #fbbf24;"></div> Keyframe</div>
-                    <div class="cache-viz-legend-item"><div class="cache-viz-legend-color" style="background: #667eea;"></div> Current</div>
-                </div>
-            </div>
-            <canvas class="cache-viz-canvas" id="cacheVizCanvas"></canvas>
-        </div>
-
-        <div class="metrics" id="metrics" style="display: none;">
-            <div class="metrics-row">
-                <div class="metric"><span class="metric-label">File:</span> <span id="metricFile">-</span></div>
-                <div class="metric"><span class="metric-label">Codec:</span> <span id="metricCodec">-</span></div>
-                <div class="metric"><span class="metric-label">Resolution:</span> <span id="metricRes">-</span></div>
-            </div>
-            <div class="metrics-row">
-                <div class="metric"><span class="metric-label">Frame:</span> <span id="metricFrame">-</span>/<span id="metricTotal">-</span></div>
-                <div class="metric"><span class="metric-label">FPS:</span> <span id="metricFps">-</span></div>
-                <div class="metric"><span class="metric-label">Seek:</span> <span id="metricSeek">-</span></div>
-                <div class="metric"><span class="metric-label">Cached:</span> <span id="metricCached">-</span></div>
-                <div class="metric"><span class="metric-label">Keyframes:</span> <span id="metricKeyframes">-</span></div>
+            <canvas id="annotationCanvas"></canvas>
+            <div class="annotation-buttons">
+                <button class="btn-duplicate" id="duplicateBtn">Yes, Duplicate (D)</button>
+                <button class="btn-not-duplicate" id="notDuplicateBtn">No, Not Duplicate (N)</button>
+                <button class="btn-skip" id="skipBtn">Skip (S)</button>
             </div>
         </div>
 
-        <div class="pose-controls" id="poseControls" style="display: none;">
-            <h3>Pose Overlay Settings</h3>
-            <div class="pose-controls-row">
-                <label><input type="checkbox" id="showPoses" checked> Show Poses</label>
-                <label><input type="checkbox" id="showNodes" checked> Nodes</label>
-                <label><input type="checkbox" id="showEdges" checked> Edges</label>
-                <label><input type="checkbox" id="showLabels"> Node Labels</label>
+        <!-- Summary Panel -->
+        <div class="panel hidden" id="summaryPanel">
+            <h3>Labeling Progress</h3>
+            <div class="summary-stats">
+                <div class="stat"><span class="stat-label">Total Pairs:</span><span class="stat-value" id="totalPairs">0</span></div>
+                <div class="stat"><span class="stat-label">Labeled:</span><span class="stat-value" id="labeledCount">0</span></div>
+                <div class="stat"><span class="stat-label">Duplicates:</span><span class="stat-value duplicate" id="duplicateCount">0</span></div>
+                <div class="stat"><span class="stat-label">Not Duplicates:</span><span class="stat-value not-duplicate" id="notDuplicateCount">0</span></div>
             </div>
-            <div class="pose-controls-row">
-                <label>Node Size: <input type="number" id="nodeSize" value="6" min="1" max="20"></label>
-                <label>Edge Width: <input type="number" id="edgeWidth" value="2" min="1" max="10"></label>
-                <label>Opacity: <input type="number" id="poseOpacity" value="100" min="0" max="100" step="10">%</label>
-            </div>
-            <div class="pose-status" id="poseStatus">No pose data loaded</div>
-            <div class="track-toggles" id="trackToggles"></div>
-        </div>
-
-        <!-- Histograms Grid -->
-        <div class="histograms-container" id="histogramsContainer" style="display: none;"></div>
-
-        <!-- Split Panel: Annotation + Precision/Accuracy -->
-        <div class="split-panel-container" id="splitPanelContainer" style="display: none;">
-            <div class="annotation-panel">
-                <h3>Pose Pair Annotation</h3>
-                <div class="pair-info" id="pairInfo">
-                    <div class="pair-info-row"><span class="pair-info-label">Frame:</span><span class="pair-info-value" id="pairFrame">-</span></div>
-                    <div class="pair-info-row"><span class="pair-info-label">Track 1:</span><span class="pair-info-value" id="pairTrack1">-</span></div>
-                    <div class="pair-info-row"><span class="pair-info-label">Track 2:</span><span class="pair-info-value" id="pairTrack2">-</span></div>
-                    <div class="pair-info-row"><span class="pair-info-label">IOU:</span><span class="pair-info-value" id="pairIOU">-</span></div>
-                    <div class="pair-info-row"><span class="pair-info-label">Centroid Dist:</span><span class="pair-info-value" id="pairCentroidDist">-</span></div>
-                    <div class="pair-info-row"><span class="pair-info-label">BBox Centroid Dist:</span><span class="pair-info-value" id="pairBboxCentroidDist">-</span></div>
-                    <div class="pair-info-row"><span class="pair-info-label">Min Nodes:</span><span class="pair-info-value" id="pairMinNodes">-</span></div>
-                    <div class="pair-info-row"><span class="pair-info-label">Avg Track Score:</span><span class="pair-info-value" id="pairAvgScore">-</span></div>
-                </div>
-                <div class="annotation-buttons">
-                    <button class="duplicate-btn" id="markDuplicateBtn" disabled>Duplicate (D)</button>
-                    <button class="not-duplicate-btn" id="markNotDuplicateBtn" disabled>Not Duplicate (N)</button>
-                    <button class="skip-btn" id="skipPairBtn" disabled>Skip (S)</button>
-                </div>
-                <div class="annotation-progress" id="annotationProgress">Load pose data to begin annotation</div>
-            </div>
-            <div class="precision-accuracy-panel">
-                <h3>Precision vs Accuracy</h3>
-                <canvas class="precision-accuracy-canvas" id="precisionAccuracyCanvas"></canvas>
+            <div style="margin-top: 15px;">
+                <button id="exportBtn">Export Labels (JSON)</button>
             </div>
         </div>
 
-        <div class="diagnostic-console" id="diagnosticConsole">
+        <!-- Diagnostic Console -->
+        <div class="diagnostic-console">
             <div class="diagnostic-console-header">
                 <h3>Diagnostic Log</h3>
                 <button id="copyLogBtn">Copy</button>
@@ -630,20 +231,13 @@
             <div class="diagnostic-console-body" id="logBody"></div>
         </div>
 
+        <!-- Keyboard Shortcuts -->
         <div class="hotkeys">
             <h3>Keyboard Shortcuts</h3>
             <div class="hotkeys-grid">
-                <div class="hotkey"><span class="hotkey-key">← / →</span><span class="hotkey-desc">±1 frame</span></div>
-                <div class="hotkey"><span class="hotkey-key">↑ / ↓</span><span class="hotkey-desc">±10 frames</span></div>
-                <div class="hotkey"><span class="hotkey-key">Ctrl+← / →</span><span class="hotkey-desc">±30 frames</span></div>
-                <div class="hotkey"><span class="hotkey-key">Ctrl+↑ / ↓</span><span class="hotkey-desc">±100 frames</span></div>
-                <div class="hotkey"><span class="hotkey-key">Space</span><span class="hotkey-desc">Play/Pause</span></div>
-                <div class="hotkey"><span class="hotkey-key">P</span><span class="hotkey-desc">Toggle Poses</span></div>
-                <div class="hotkey"><span class="hotkey-key">D</span><span class="hotkey-desc">Mark Duplicate</span></div>
-                <div class="hotkey"><span class="hotkey-key">N</span><span class="hotkey-desc">Mark Not Duplicate</span></div>
-                <div class="hotkey"><span class="hotkey-key">S</span><span class="hotkey-desc">Skip Pair</span></div>
-                <div class="hotkey"><span class="hotkey-key">Mouse Wheel</span><span class="hotkey-desc">Zoom</span></div>
-                <div class="hotkey"><span class="hotkey-key">Click + Drag</span><span class="hotkey-desc">Pan</span></div>
+                <div class="hotkey"><span class="hotkey-key">D</span><span class="hotkey-desc">Mark as Duplicate</span></div>
+                <div class="hotkey"><span class="hotkey-key">N</span><span class="hotkey-desc">Mark as Not Duplicate</span></div>
+                <div class="hotkey"><span class="hotkey-key">S</span><span class="hotkey-desc">Skip current pair</span></div>
             </div>
         </div>
     </div>
@@ -664,13 +258,9 @@
             entry.className = 'log-entry';
             entry.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${level}">${msg}</span>`;
             logBody.appendChild(entry);
-
-            // Limit entries
             while (logBody.children.length > MAX_LOG_ENTRIES) {
                 logBody.removeChild(logBody.firstChild);
             }
-
-            // Auto-scroll
             logBody.scrollTop = logBody.scrollHeight;
         }
 
@@ -680,31 +270,18 @@
                 const msg = entry.querySelector('.log-msg').textContent;
                 return `${time} ${msg}`;
             });
-            const text = lines.join('\n');
-            navigator.clipboard.writeText(text).then(() => {
-                log('Log copied to clipboard', 'success');
-            }).catch(() => {
-                // Fallback
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                log('Log copied to clipboard', 'success');
-            });
+            navigator.clipboard.writeText(lines.join('\n')).then(() => log('Log copied', 'success'));
         });
 
         log('Duplicate Pose Investigator initialized', 'info');
 
         // ============================================
         // On-Demand Video Decoder with Sliding Cache
-        // Uses File System Access API for chunked reading
         // ============================================
         class OnDemandVideoDecoder {
             constructor(options = {}) {
-                this.cacheSize = options.cacheSize || 60;
-                this.lookahead = options.lookahead || 10;
+                this.cacheSize = options.cacheSize || 30;
+                this.lookahead = options.lookahead || 5;
                 this.cache = new Map();
                 this.samples = [];
                 this.keyframeIndices = [];
@@ -712,154 +289,69 @@
                 this.config = null;
                 this.videoTrack = null;
                 this.mp4boxFile = null;
-                this.fileHandle = null;  // File System Access API handle
-                this.file = null;        // Standard File object fallback
-                this.url = null;         // URL for remote video
+                this.file = null;
                 this.fileSize = 0;
-                this.CHUNK_SIZE = 1024 * 1024; // 1MB chunks
-                this.supportsRangeRequests = false;
-                this.isDecoding = false;  // Lock to prevent concurrent decodes
-                this.pendingFrame = null; // Queue the latest requested frame
-                this.prefetchRequested = false; // Flag to trigger background prefetch
-                this.lastAccessedFrame = -1; // Track access pattern for prefetching
-                this.accessDirection = 1; // 1 = forward, -1 = backward
+                this.CHUNK_SIZE = 1024 * 1024;
+                this.isDecoding = false;
+                this.pendingFrame = null;
             }
 
-            // Initialize with File System Access API handle, File object, or URL string
             async init(source) {
-                if (typeof source === 'string') {
-                    // URL - check for range request support
-                    this.url = source;
-                    log('Checking URL for range request support...', 'info');
-                    const headResponse = await fetch(source, { method: 'HEAD' });
-                    if (!headResponse.ok) {
-                        throw new Error(`Failed to fetch URL: ${headResponse.status} ${headResponse.statusText}`);
-                    }
-                    this.fileSize = parseInt(headResponse.headers.get('Content-Length')) || 0;
-                    this.supportsRangeRequests = headResponse.headers.get('Accept-Ranges') === 'bytes';
-
-                    if (!this.supportsRangeRequests || !this.fileSize) {
-                        // Fall back to fetching entire file
-                        log('URL does not support range requests, fetching entire file...', 'warn');
-                        const response = await fetch(source);
-                        const blob = await response.blob();
-                        this.file = blob;
-                        this.fileSize = blob.size;
-                        this.url = null;
-                        log(`Downloaded ${(this.fileSize / 1024 / 1024).toFixed(1)} MB`, 'info');
-                    } else {
-                        log(`URL supports streaming (${(this.fileSize / 1024 / 1024).toFixed(1)} MB, range requests enabled)`, 'success');
-                    }
-                } else if (source.getFile) {
-                    // File System Access API handle
-                    this.fileHandle = source;
+                if (source.getFile) {
                     this.file = await source.getFile();
-                    this.fileSize = this.file.size;
                 } else {
-                    // Standard File object
                     this.file = source;
-                    this.fileSize = this.file.size;
                 }
+                this.fileSize = this.file.size;
 
-                // Demux the video using chunked reading
                 this.mp4boxFile = MP4Box.createFile();
-
                 const ready = new Promise((resolve, reject) => {
                     this.mp4boxFile.onError = reject;
                     this.mp4boxFile.onReady = resolve;
                 });
 
-                // Read file progressively until mp4box has enough info
                 let offset = 0;
                 let resolved = false;
-
                 ready.then(() => { resolved = true; });
 
                 while (offset < this.fileSize && !resolved) {
                     const buffer = await this.readChunk(offset, this.CHUNK_SIZE);
                     buffer.fileStart = offset;
-
                     const nextOffset = this.mp4boxFile.appendBuffer(buffer);
-
-                    if (nextOffset === undefined) {
-                        // mp4box needs more data, continue reading sequentially
-                        offset += buffer.byteLength;
-                    } else {
-                        // mp4box is requesting a specific offset
-                        offset = nextOffset;
-                    }
-
-                    // Give the promise a chance to resolve
+                    offset = nextOffset === undefined ? offset + buffer.byteLength : nextOffset;
                     await new Promise(r => setTimeout(r, 0));
                 }
 
                 const info = await ready;
-
-                if (info.videoTracks.length === 0) {
-                    throw new Error('No video tracks found in file');
-                }
+                if (info.videoTracks.length === 0) throw new Error('No video tracks found');
 
                 this.videoTrack = info.videoTracks[0];
-
-                // Get codec description
                 const trak = this.mp4boxFile.getTrackById(this.videoTrack.id);
                 const description = this.getCodecDescription(trak);
 
                 const codec = this.videoTrack.codec.startsWith('vp08') ? 'vp8' : this.videoTrack.codec;
-                this.config = {
-                    codec: codec,
-                    codedWidth: this.videoTrack.video.width,
-                    codedHeight: this.videoTrack.video.height,
-                };
-                if (description) {
-                    this.config.description = description;
-                }
+                this.config = { codec, codedWidth: this.videoTrack.video.width, codedHeight: this.videoTrack.video.height };
+                if (description) this.config.description = description;
 
-                // Check codec support
                 const support = await VideoDecoder.isConfigSupported(this.config);
-                if (!support.supported) {
-                    throw new Error(`Codec ${codec} is not supported by this browser`);
-                }
+                if (!support.supported) throw new Error(`Codec ${codec} not supported`);
 
-                // mp4box has parsed the moov atom which contains sample metadata (offsets, sizes).
-                // We don't need to load mdat here - we'll read sample data on-demand when decoding.
-
-                // Extract all samples (metadata only - not the full video data)
                 this.extractSamples();
-
-                // Calculate FPS
                 const duration = this.videoTrack.duration / this.videoTrack.timescale;
                 this.fps = this.samples.length / duration;
 
                 return {
-                    codec: codec,
                     width: this.videoTrack.video.width,
                     height: this.videoTrack.video.height,
                     totalFrames: this.samples.length,
-                    keyframes: this.keyframeIndices.length,
-                    duration: duration,
                     fps: this.fps,
                 };
             }
 
-            // Read a chunk of the file at a specific offset
             async readChunk(offset, size) {
                 const end = Math.min(offset + size, this.fileSize);
-
-                if (this.url && this.supportsRangeRequests) {
-                    // Use HTTP range request for URL
-                    const response = await fetch(this.url, {
-                        headers: { 'Range': `bytes=${offset}-${end - 1}` }
-                    });
-                    const arrayBuffer = await response.arrayBuffer();
-                    // Return ArrayBuffer directly (not Uint8Array) so fileStart can be set
-                    return arrayBuffer;
-                } else {
-                    // Use File/Blob slice for local files
-                    const blob = this.file.slice(offset, end);
-                    const arrayBuffer = await blob.arrayBuffer();
-                    return arrayBuffer;
-                }
+                const blob = this.file.slice(offset, end);
+                return await blob.arrayBuffer();
             }
 
             getCodecDescription(trak) {
@@ -875,365 +367,155 @@
             }
 
             extractSamples() {
-                // Use getTrackSamplesInfo to get sample metadata (offsets, sizes)
-                // without needing mdat loaded - this works from moov alone
                 const samplesInfo = this.mp4boxFile.getTrackSamplesInfo(this.videoTrack.id);
-
-                if (!samplesInfo || samplesInfo.length === 0) {
-                    throw new Error('No samples found in video track');
-                }
+                if (!samplesInfo || samplesInfo.length === 0) throw new Error('No samples found');
 
                 const timescale = this.videoTrack.timescale;
-
                 for (let i = 0; i < samplesInfo.length; i++) {
                     const sample = samplesInfo[i];
                     this.samples.push({
-                        // Store metadata only - we'll read data on-demand
                         offset: sample.offset,
                         size: sample.size,
                         timestamp: sample.cts * 1e6 / timescale,
                         duration: sample.duration * 1e6 / timescale,
                         isKeyframe: sample.is_sync,
                     });
-                    if (sample.is_sync) {
-                        this.keyframeIndices.push(i);
-                    }
+                    if (sample.is_sync) this.keyframeIndices.push(i);
                 }
-
-                log(`Extracted ${this.samples.length} sample metadata entries`, 'info');
             }
 
             findKeyframeBefore(frameIndex) {
-                let left = 0, right = this.keyframeIndices.length - 1;
                 let result = 0;
-
-                while (left <= right) {
-                    const mid = Math.floor((left + right) / 2);
-                    if (this.keyframeIndices[mid] <= frameIndex) {
-                        result = this.keyframeIndices[mid];
-                        left = mid + 1;
-                    } else {
-                        right = mid - 1;
-                    }
+                for (const kf of this.keyframeIndices) {
+                    if (kf <= frameIndex) result = kf;
+                    else break;
                 }
-
                 return result;
             }
 
-            findKeyframeAfter(frameIndex) {
-                for (const kf of this.keyframeIndices) {
-                    if (kf > frameIndex) return kf;
-                }
-                return this.samples.length;
-            }
-
             async getFrame(frameIndex) {
-                if (frameIndex < 0 || frameIndex >= this.samples.length) {
-                    return null;
-                }
+                if (frameIndex < 0 || frameIndex >= this.samples.length) return null;
+                if (this.cache.has(frameIndex)) return { bitmap: this.cache.get(frameIndex), fromCache: true };
 
-                // Track access direction for prefetching
-                if (this.lastAccessedFrame >= 0) {
-                    const delta = frameIndex - this.lastAccessedFrame;
-                    if (delta > 0) this.accessDirection = 1;
-                    else if (delta < 0) this.accessDirection = -1;
-                }
-                this.lastAccessedFrame = frameIndex;
-
-                // Check cache first
-                if (this.cache.has(frameIndex)) {
-                    const bitmap = this.cache.get(frameIndex);
-                    this.cache.delete(frameIndex);
-                    this.cache.set(frameIndex, bitmap);
-
-                    // Trigger background prefetch if we're getting close to cache edge
-                    this.maybeStartPrefetch(frameIndex);
-
-                    return { bitmap, fromCache: true };
-                }
-
-                // If currently decoding, queue this frame and wait
                 if (this.isDecoding) {
-                    this.pendingFrame = frameIndex;
-                    // Wait for current decode to finish, then try again
                     await new Promise(resolve => {
-                        const checkDone = () => {
-                            if (!this.isDecoding) {
-                                resolve();
-                            } else {
-                                setTimeout(checkDone, 10);
-                            }
-                        };
-                        checkDone();
+                        const check = () => this.isDecoding ? setTimeout(check, 10) : resolve();
+                        check();
                     });
-                    // Check cache again - might have been decoded
-                    if (this.cache.has(frameIndex)) {
-                        const bitmap = this.cache.get(frameIndex);
-                        this.cache.delete(frameIndex);
-                        this.cache.set(frameIndex, bitmap);
-                        return { bitmap, fromCache: true };
-                    }
-                    // If there's a newer pending frame, skip this one
-                    if (this.pendingFrame !== null && this.pendingFrame !== frameIndex) {
-                        return null;
-                    }
+                    if (this.cache.has(frameIndex)) return { bitmap: this.cache.get(frameIndex), fromCache: true };
                 }
 
-                // Find keyframe and decode range with lookahead
                 const keyframe = this.findKeyframeBefore(frameIndex);
                 const endFrame = Math.min(frameIndex + this.lookahead, this.samples.length - 1);
-                const nextKeyframe = this.findKeyframeAfter(frameIndex);
-                const actualEnd = nextKeyframe > frameIndex ? Math.min(endFrame, nextKeyframe - 1) : endFrame;
-
-                await this.decodeRange(keyframe, actualEnd, frameIndex);
+                await this.decodeRange(keyframe, endFrame, frameIndex);
 
                 const bitmap = this.cache.get(frameIndex);
                 return bitmap ? { bitmap, fromCache: false } : null;
             }
 
-            // Check if we should start prefetching ahead
-            maybeStartPrefetch(currentFrame) {
-                if (this.isDecoding || this.prefetchRequested) return;
-
-                // Find the edge of cached frames in the access direction
-                let cachedAhead = 0;
-                if (this.accessDirection > 0) {
-                    // Moving forward - count cached frames ahead
-                    for (let i = currentFrame + 1; i < this.samples.length && this.cache.has(i); i++) {
-                        cachedAhead++;
-                    }
-                } else {
-                    // Moving backward - count cached frames behind
-                    for (let i = currentFrame - 1; i >= 0 && this.cache.has(i); i--) {
-                        cachedAhead++;
-                    }
-                }
-
-                // If we have less than lookahead frames cached ahead, start prefetching
-                if (cachedAhead < this.lookahead) {
-                    this.prefetchRequested = true;
-                    // Use setTimeout to not block the current frame return
-                    setTimeout(() => this.prefetch(currentFrame), 0);
-                }
-            }
-
-            // Prefetch frames in the current access direction
-            async prefetch(fromFrame) {
-                if (this.isDecoding) {
-                    this.prefetchRequested = false;
-                    return;
-                }
-
-                const direction = this.accessDirection;
-                let targetFrame;
-
-                if (direction > 0) {
-                    // Find first uncached frame ahead
-                    targetFrame = fromFrame + 1;
-                    while (targetFrame < this.samples.length && this.cache.has(targetFrame)) {
-                        targetFrame++;
-                    }
-                    if (targetFrame >= this.samples.length) {
-                        this.prefetchRequested = false;
-                        return;
-                    }
-                } else {
-                    // Find first uncached frame behind
-                    targetFrame = fromFrame - 1;
-                    while (targetFrame >= 0 && this.cache.has(targetFrame)) {
-                        targetFrame--;
-                    }
-                    if (targetFrame < 0) {
-                        this.prefetchRequested = false;
-                        return;
-                    }
-                }
-
-                // Decode a range around the target
-                const keyframe = this.findKeyframeBefore(targetFrame);
-                const endFrame = Math.min(targetFrame + this.lookahead, this.samples.length - 1);
-                const nextKeyframe = this.findKeyframeAfter(targetFrame);
-                const actualEnd = nextKeyframe > targetFrame ? Math.min(endFrame, nextKeyframe - 1) : endFrame;
-
-                await this.decodeRange(keyframe, actualEnd, targetFrame);
-                this.prefetchRequested = false;
-            }
-
             async decodeRange(startFrame, endFrame, targetFrame) {
                 this.isDecoding = true;
-                this.pendingFrame = null;
-
                 try {
-                    await this._decodeRangeInternal(startFrame, endFrame, targetFrame);
+                    const expectedFrames = endFrame - startFrame + 1;
+                    let decodedCount = 0;
+                    const halfCache = Math.floor(this.cacheSize / 2);
+                    const cacheWindowStart = Math.max(startFrame, targetFrame - halfCache);
+                    const cacheWindowEnd = Math.min(endFrame, targetFrame + halfCache);
+
+                    if (this.decoder) try { this.decoder.close(); } catch (e) {}
+
+                    const sampleDataArray = await this.readSampleDataRange(startFrame, endFrame);
+
+                    await new Promise((resolve, reject) => {
+                        this.decoder = new VideoDecoder({
+                            output: (frame) => {
+                                const frameIndex = startFrame + decodedCount;
+                                if (frameIndex >= cacheWindowStart && frameIndex <= cacheWindowEnd) {
+                                    createImageBitmap(frame).then(bitmap => {
+                                        this.addToCache(frameIndex, bitmap);
+                                        frame.close();
+                                        if (++decodedCount >= expectedFrames) resolve();
+                                    }).catch(() => { frame.close(); if (++decodedCount >= expectedFrames) resolve(); });
+                                } else {
+                                    frame.close();
+                                    if (++decodedCount >= expectedFrames) resolve();
+                                }
+                            },
+                            error: (e) => e.name === 'AbortError' ? resolve() : reject(e)
+                        });
+
+                        this.decoder.configure(this.config);
+                        for (let i = startFrame; i <= endFrame; i++) {
+                            const sample = this.samples[i];
+                            const chunk = new EncodedVideoChunk({
+                                type: sample.isKeyframe ? 'key' : 'delta',
+                                timestamp: sample.timestamp,
+                                duration: sample.duration,
+                                data: sampleDataArray[i - startFrame],
+                            });
+                            this.decoder.decode(chunk);
+                        }
+                        this.decoder.flush();
+                    });
                 } finally {
                     this.isDecoding = false;
                 }
             }
 
-            async _decodeRangeInternal(startFrame, endFrame, targetFrame) {
-                const expectedFrames = endFrame - startFrame + 1;
-                let decodedCount = 0;
-
-                const halfCache = Math.floor(this.cacheSize / 2);
-                const cacheWindowStart = Math.max(startFrame, targetFrame - halfCache);
-                const cacheWindowEnd = Math.min(endFrame, targetFrame + halfCache);
-
-                if (this.decoder) {
-                    try {
-                        this.decoder.close();
-                    } catch (e) {
-                        // Ignore close errors
-                    }
-                }
-
-                // Read sample data for the range - batch consecutive samples into single reads
-                const sampleDataArray = await this.readSampleDataRange(startFrame, endFrame);
-
-                return new Promise((resolve, reject) => {
-                    this.decoder = new VideoDecoder({
-                        output: (frame) => {
-                            const frameIndex = startFrame + decodedCount;
-
-                            if (frameIndex >= cacheWindowStart && frameIndex <= cacheWindowEnd) {
-                                createImageBitmap(frame).then(bitmap => {
-                                    this.addToCache(frameIndex, bitmap);
-                                    frame.close();
-                                    decodedCount++;
-                                    if (decodedCount >= expectedFrames) {
-                                        resolve();
-                                    }
-                                }).catch(() => {
-                                    frame.close();
-                                    decodedCount++;
-                                    if (decodedCount >= expectedFrames) {
-                                        resolve();
-                                    }
-                                });
-                            } else {
-                                frame.close();
-                                decodedCount++;
-                                if (decodedCount >= expectedFrames) {
-                                    resolve();
-                                }
-                            }
-                        },
-                        error: (e) => {
-                            // Ignore AbortError from decoder close
-                            if (e.name === 'AbortError') {
-                                resolve();
-                            } else {
-                                reject(e);
-                            }
-                        }
-                    });
-
-                    this.decoder.configure(this.config);
-
-                    for (let i = startFrame; i <= endFrame; i++) {
-                        const sample = this.samples[i];
-                        const sampleData = sampleDataArray[i - startFrame];
-                        const chunk = new EncodedVideoChunk({
-                            type: sample.isKeyframe ? 'key' : 'delta',
-                            timestamp: sample.timestamp,
-                            duration: sample.duration,
-                            data: sampleData,
-                        });
-                        this.decoder.decode(chunk);
-                    }
-
-                    this.decoder.flush();
-                });
-            }
-
-            // Read sample data for a range, batching consecutive samples into single reads
             async readSampleDataRange(startFrame, endFrame) {
                 const results = [];
-
-                // Find contiguous regions and batch read them
                 let regionStart = startFrame;
                 while (regionStart <= endFrame) {
                     const firstSample = this.samples[regionStart];
                     let regionEnd = regionStart;
                     let regionBytes = firstSample.size;
 
-                    // Extend region while samples are contiguous
                     while (regionEnd < endFrame) {
-                        const currentSample = this.samples[regionEnd];
-                        const nextSample = this.samples[regionEnd + 1];
-
-                        // Check if next sample immediately follows current
-                        if (nextSample.offset === currentSample.offset + currentSample.size) {
+                        const curr = this.samples[regionEnd];
+                        const next = this.samples[regionEnd + 1];
+                        if (next.offset === curr.offset + curr.size) {
                             regionEnd++;
-                            regionBytes += nextSample.size;
-                        } else {
-                            break;
-                        }
+                            regionBytes += next.size;
+                        } else break;
                     }
 
-                    // Read the entire contiguous region
                     const buffer = await this.readChunk(firstSample.offset, regionBytes);
-                    const bufferView = new Uint8Array(buffer);
-
-                    // Extract individual samples from the buffer
-                    let bufferOffset = 0;
+                    const view = new Uint8Array(buffer);
+                    let offset = 0;
                     for (let i = regionStart; i <= regionEnd; i++) {
-                        const sample = this.samples[i];
-                        results.push(bufferView.slice(bufferOffset, bufferOffset + sample.size));
-                        bufferOffset += sample.size;
+                        results.push(view.slice(offset, offset + this.samples[i].size));
+                        offset += this.samples[i].size;
                     }
-
                     regionStart = regionEnd + 1;
                 }
-
                 return results;
             }
 
             addToCache(frameIndex, bitmap) {
                 if (this.cache.size >= this.cacheSize) {
                     const firstKey = this.cache.keys().next().value;
-                    const oldBitmap = this.cache.get(firstKey);
-                    oldBitmap.close();
+                    this.cache.get(firstKey).close();
                     this.cache.delete(firstKey);
                 }
                 this.cache.set(frameIndex, bitmap);
             }
 
-            getCacheStatus() {
-                return {
-                    size: this.cache.size,
-                    maxSize: this.cacheSize,
-                };
-            }
-
-            getFrameTimestamp(frameIndex) {
-                if (frameIndex >= 0 && frameIndex < this.samples.length) {
-                    return this.samples[frameIndex].timestamp / 1e6;
-                }
-                return 0;
-            }
-
             close() {
-                if (this.decoder) {
-                    this.decoder.close();
-                }
-                for (const bitmap of this.cache.values()) {
-                    bitmap.close();
-                }
+                if (this.decoder) this.decoder.close();
+                for (const bitmap of this.cache.values()) bitmap.close();
                 this.cache.clear();
             }
         }
 
         // ============================================
         // SLEAP Pose Data Loader
-        // Supports .slp (native SLEAP) and .h5 (analysis export) formats
         // ============================================
         class SLEAPLoader {
             constructor() {
                 this.nodeNames = [];
                 this.trackNames = [];
                 this.edges = [];
-                this.tracks = null;  // Shape: [frames, nodes, 2, tracks] after processing
-                this.trackOccupancy = null;
+                this.tracks = null;
                 this.numFrames = 0;
                 this.numNodes = 0;
                 this.numTracks = 0;
@@ -1242,7 +524,6 @@
             }
 
             async init() {
-                // Initialize h5wasm using dynamic ESM import
                 if (!this.h5Module) {
                     log('Loading h5wasm module...', 'info');
                     const h5wasmModule = await import('https://cdn.jsdelivr.net/npm/h5wasm@0.7.5/dist/esm/hdf5_hl.js');
@@ -1254,103 +535,61 @@
 
             async loadFile(file) {
                 await this.init();
-
                 const arrayBuffer = await file.arrayBuffer();
                 const uint8Array = new Uint8Array(arrayBuffer);
-
-                // Get FS from the module
                 const FS = this.h5Module.FS;
-
-                // Create a virtual file in emscripten's filesystem
                 const filename = 'temp_' + Date.now() + '.h5';
                 FS.writeFile(filename, uint8Array);
 
                 try {
-                    // Use h5wasm.File constructor
                     const h5file = new this.h5wasm.File(filename, 'r');
-
-                    // Detect file type and parse accordingly
                     const keys = h5file.keys();
-                    log(`HDF5 file contains: ${keys.join(', ')}`, 'info');
+                    log(`HDF5 keys: ${keys.join(', ')}`, 'info');
 
                     if (keys.includes('tracks') && keys.includes('node_names')) {
-                        // Analysis HDF5 format
                         await this.parseAnalysisFormat(h5file);
                     } else if (keys.includes('metadata')) {
-                        // Native .slp format
                         await this.parseNativeFormat(h5file);
                     } else {
                         throw new Error('Unknown SLEAP file format');
                     }
-
                     h5file.close();
                 } finally {
-                    // Clean up virtual file
-                    try {
-                        this.h5Module.FS.unlink(filename);
-                    } catch (e) {}
+                    try { this.h5Module.FS.unlink(filename); } catch (e) {}
                 }
 
-                return {
-                    nodeNames: this.nodeNames,
-                    trackNames: this.trackNames,
-                    edges: this.edges,
-                    numFrames: this.numFrames,
-                    numNodes: this.numNodes,
-                    numTracks: this.numTracks
-                };
+                return { nodeNames: this.nodeNames, trackNames: this.trackNames, edges: this.edges,
+                         numFrames: this.numFrames, numNodes: this.numNodes, numTracks: this.numTracks };
             }
 
             async parseAnalysisFormat(h5file) {
-                // Read node names
                 const nodeNamesData = h5file.get('node_names');
                 if (nodeNamesData) {
-                    const rawNames = nodeNamesData.value;
-                    this.nodeNames = Array.from(rawNames).map(n => {
-                        if (n instanceof Uint8Array) {
-                            return new TextDecoder().decode(n);
-                        }
-                        return String(n);
-                    });
+                    this.nodeNames = Array.from(nodeNamesData.value).map(n =>
+                        n instanceof Uint8Array ? new TextDecoder().decode(n) : String(n));
                 }
                 this.numNodes = this.nodeNames.length;
 
-                // Read track names
                 const trackNamesData = h5file.get('track_names');
                 if (trackNamesData) {
-                    const rawNames = trackNamesData.value;
-                    this.trackNames = Array.from(rawNames).map(n => {
-                        if (n instanceof Uint8Array) {
-                            return new TextDecoder().decode(n);
-                        }
-                        return String(n);
-                    });
+                    this.trackNames = Array.from(trackNamesData.value).map(n =>
+                        n instanceof Uint8Array ? new TextDecoder().decode(n) : String(n));
                 }
 
-                // Read tracks data - stored as (tracks, 2, nodes, frames) in MATLAB order
                 const tracksData = h5file.get('tracks');
                 if (tracksData) {
-                    const shape = tracksData.shape;  // [tracks, 2, nodes, frames] in MATLAB/column-major
+                    const shape = tracksData.shape;
                     const rawData = tracksData.value;
-
-                    // Convert to JS-friendly format: [frames][tracks][nodes][x,y]
-                    // MATLAB stores column-major, so actual order is reversed
-                    const numTracks = shape[0];
-                    const numCoords = shape[1];  // 2 (x, y)
-                    const numNodes = shape[2];
-                    const numFrames = shape[3];
-
+                    const [numTracks, numCoords, numNodes, numFrames] = shape;
                     this.numFrames = numFrames;
                     this.numTracks = numTracks;
 
-                    // Reshape the data
                     this.tracks = new Array(numFrames);
                     for (let f = 0; f < numFrames; f++) {
                         this.tracks[f] = new Array(numTracks);
                         for (let t = 0; t < numTracks; t++) {
                             this.tracks[f][t] = new Array(numNodes);
                             for (let n = 0; n < numNodes; n++) {
-                                // Index calculation for column-major order
                                 const xIdx = t + numTracks * (0 + numCoords * (n + numNodes * f));
                                 const yIdx = t + numTracks * (1 + numCoords * (n + numNodes * f));
                                 this.tracks[f][t][n] = [rawData[xIdx], rawData[yIdx]];
@@ -1359,37 +598,16 @@
                     }
                 }
 
-                // Generate default edges (connect sequential nodes) if no edge info
                 if (this.edges.length === 0 && this.numNodes > 1) {
-                    for (let i = 0; i < this.numNodes - 1; i++) {
-                        this.edges.push([i, i + 1]);
-                    }
+                    for (let i = 0; i < this.numNodes - 1; i++) this.edges.push([i, i + 1]);
                 }
-
-                // Read edge indices if available
-                const edgeInds = h5file.get('edge_inds');
-                if (edgeInds) {
-                    const rawEdges = edgeInds.value;
-                    const shape = edgeInds.shape;
-                    // Edges are stored as [2, numEdges] - pairs of (src, dst)
-                    const numEdges = shape[1] || rawEdges.length / 2;
-                    this.edges = [];
-                    for (let i = 0; i < numEdges; i++) {
-                        this.edges.push([rawEdges[i], rawEdges[numEdges + i]]);
-                    }
-                }
-
-                log(`Parsed analysis format: ${this.numNodes} nodes, ${this.numTracks} tracks, ${this.numFrames} frames`, 'success');
+                log(`Analysis format: ${this.numNodes} nodes, ${this.numTracks} tracks, ${this.numFrames} frames`, 'success');
             }
 
             async parseNativeFormat(h5file) {
-                // Parse native .slp format - metadata is stored as JSON in attrs
                 const metadataGroup = h5file.get('metadata');
-                if (!metadataGroup) {
-                    throw new Error('No metadata found in .slp file');
-                }
+                if (!metadataGroup) throw new Error('No metadata found');
 
-                // Get metadata JSON from attributes
                 let metadata = null;
                 try {
                     const metadataJson = metadataGroup.attrs['json'];
@@ -1397,70 +615,46 @@
                         const jsonStr = typeof metadataJson === 'string' ? metadataJson :
                             (metadataJson.value ? new TextDecoder().decode(metadataJson.value) : String(metadataJson));
                         metadata = JSON.parse(jsonStr);
-                        log(`Parsed SLEAP metadata v${metadata.version || 'unknown'}`, 'info');
                     }
-                } catch (e) {
-                    log('Could not parse metadata JSON: ' + e.message, 'warn');
-                }
+                } catch (e) { log('Could not parse metadata: ' + e.message, 'warn'); }
 
-                // Extract node names from metadata
-                if (metadata && metadata.nodes) {
+                if (metadata?.nodes) {
                     this.nodeNames = metadata.nodes.map(n => n.name || n);
                     this.numNodes = this.nodeNames.length;
-                    log(`Found ${this.numNodes} nodes: ${this.nodeNames.join(', ')}`, 'info');
                 }
 
-                // Extract edges from skeleton links
-                if (metadata && metadata.skeletons && metadata.skeletons[0]) {
-                    const skeleton = metadata.skeletons[0];
-                    if (skeleton.links) {
-                        this.edges = skeleton.links.map(link => [link.source, link.target]);
-                        log(`Found ${this.edges.length} skeleton edges`, 'info');
-                    }
+                if (metadata?.skeletons?.[0]?.links) {
+                    this.edges = metadata.skeletons[0].links.map(link => [link.source, link.target]);
                 }
 
-                // Parse track names
                 const tracksJson = h5file.get('tracks_json');
                 if (tracksJson) {
-                    const rawTracks = tracksJson.value;
-                    this.trackNames = Array.from(rawTracks).map(t => {
+                    this.trackNames = Array.from(tracksJson.value).map(t => {
                         try {
                             const str = t instanceof Uint8Array ? new TextDecoder().decode(t) : String(t);
                             const parsed = JSON.parse(str);
                             return Array.isArray(parsed) ? parsed[1] : str;
-                        } catch (e) {
-                            return String(t);
-                        }
+                        } catch { return String(t); }
                     });
                     this.numTracks = this.trackNames.length;
-                    log(`Found ${this.numTracks} tracks`, 'info');
                 }
 
-                // Get frames, instances, and pred_points datasets
                 const framesData = h5file.get('frames');
                 const instancesData = h5file.get('instances');
                 const predPointsData = h5file.get('pred_points');
 
                 if (!framesData || !instancesData || !predPointsData) {
-                    throw new Error('Missing required datasets (frames, instances, or pred_points)');
+                    throw new Error('Missing required datasets');
                 }
 
                 const frames = framesData.value;
                 const instances = instancesData.value;
                 const predPoints = predPointsData.value;
-
                 this.numFrames = frames.length;
-                log(`Processing ${this.numFrames} frames with ${instances.length} instances...`, 'info');
 
-                // Build poses per frame: [frame][track][node] = [x, y]
-                // Also store tracking scores per frame/track
                 this.tracks = new Array(this.numFrames);
-                this.trackingScores = new Array(this.numFrames);
-
                 for (let f = 0; f < this.numFrames; f++) {
-                    // Initialize frame with NaN for all tracks/nodes
                     this.tracks[f] = new Array(this.numTracks);
-                    this.trackingScores[f] = new Array(this.numTracks).fill(NaN);
                     for (let t = 0; t < this.numTracks; t++) {
                         this.tracks[f][t] = new Array(this.numNodes);
                         for (let n = 0; n < this.numNodes; n++) {
@@ -1468,7 +662,6 @@
                         }
                     }
 
-                    // Get instances for this frame
                     const frame = frames[f];
                     const instStart = Number(frame.instance_id_start || frame[3]);
                     const instEnd = Number(frame.instance_id_end || frame[4]);
@@ -1478,692 +671,365 @@
                         const trackIdx = Number(inst.track !== undefined ? inst.track : inst[4]);
                         const pointStart = Number(inst.point_id_start !== undefined ? inst.point_id_start : inst[7]);
                         const pointEnd = Number(inst.point_id_end !== undefined ? inst.point_id_end : inst[8]);
-                        // tracking_score is at index 9 in the instance array
-                        const trackingScore = Number(inst.tracking_score !== undefined ? inst.tracking_score : inst[9]);
 
                         if (trackIdx < 0 || trackIdx >= this.numTracks) continue;
 
-                        // Store tracking score for this track on this frame
-                        this.trackingScores[f][trackIdx] = trackingScore;
-
-                        // Extract points for this instance
                         for (let p = pointStart, nodeIdx = 0; p < pointEnd && nodeIdx < this.numNodes; p++, nodeIdx++) {
                             if (p < predPoints.length) {
                                 const point = predPoints[p];
-                                const x = Number(point.x !== undefined ? point.x : point[0]);
-                                const y = Number(point.y !== undefined ? point.y : point[1]);
-                                this.tracks[f][trackIdx][nodeIdx] = [x, y];
+                                this.tracks[f][trackIdx][nodeIdx] = [
+                                    Number(point.x !== undefined ? point.x : point[0]),
+                                    Number(point.y !== undefined ? point.y : point[1])
+                                ];
                             }
                         }
                     }
                 }
-
-                log(`Native .slp parsed: ${this.numNodes} nodes, ${this.numTracks} tracks, ${this.numFrames} frames`, 'success');
+                log(`Native format: ${this.numNodes} nodes, ${this.numTracks} tracks, ${this.numFrames} frames`, 'success');
             }
 
-            // Get tracking score for a specific track on a frame
-            getTrackingScore(frameIndex, trackIdx) {
-                if (!this.trackingScores || frameIndex < 0 || frameIndex >= this.numFrames) {
-                    return NaN;
-                }
-                if (trackIdx < 0 || trackIdx >= this.numTracks) {
-                    return NaN;
-                }
-                return this.trackingScores[frameIndex][trackIdx];
-            }
-
-            // Get poses for a specific frame
             getPosesForFrame(frameIndex) {
-                if (!this.tracks || frameIndex < 0 || frameIndex >= this.numFrames) {
-                    return null;
-                }
+                if (!this.tracks || frameIndex < 0 || frameIndex >= this.numFrames) return null;
                 return this.tracks[frameIndex];
             }
 
-            // Check if a point is valid (not NaN)
             isValidPoint(point) {
                 return point && !isNaN(point[0]) && !isNaN(point[1]);
             }
         }
 
         // ============================================
-        // Metrics Computer - Computes IOU, centroid distances, etc.
+        // IOU Computer
         // ============================================
-        class MetricsComputer {
+        class IOUComputer {
             constructor(sleapLoader) {
-                this.loader = sleapLoader;
-                this.allPairs = [];  // All computed pose pairs with metrics
+                this.sleapLoader = sleapLoader;
+                this.pairs = [];
             }
 
-            // Compute bounding box for a set of points
-            computeBoundingBox(points) {
-                let minX = Infinity, minY = Infinity;
-                let maxX = -Infinity, maxY = -Infinity;
-                let validCount = 0;
+            computeBoundingBox(poseNodes) {
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                let hasValid = false;
 
-                for (const point of points) {
-                    if (this.loader.isValidPoint(point)) {
-                        minX = Math.min(minX, point[0]);
-                        minY = Math.min(minY, point[1]);
-                        maxX = Math.max(maxX, point[0]);
-                        maxY = Math.max(maxY, point[1]);
-                        validCount++;
+                for (const node of poseNodes) {
+                    if (this.sleapLoader.isValidPoint(node)) {
+                        hasValid = true;
+                        minX = Math.min(minX, node[0]);
+                        minY = Math.min(minY, node[1]);
+                        maxX = Math.max(maxX, node[0]);
+                        maxY = Math.max(maxY, node[1]);
                     }
                 }
 
-                if (validCount === 0) return null;
-                return { minX, minY, maxX, maxY, validCount };
+                return hasValid ? { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY } : null;
             }
 
-            // Compute IOU between two bounding boxes
-            computeIOU(box1, box2) {
-                if (!box1 || !box2) return NaN;
+            computeIOU(bbox1, bbox2) {
+                const xOverlap = Math.max(0, Math.min(bbox1.maxX, bbox2.maxX) - Math.max(bbox1.minX, bbox2.minX));
+                const yOverlap = Math.max(0, Math.min(bbox1.maxY, bbox2.maxY) - Math.max(bbox1.minY, bbox2.minY));
+                const intersection = xOverlap * yOverlap;
 
-                const xA = Math.max(box1.minX, box2.minX);
-                const yA = Math.max(box1.minY, box2.minY);
-                const xB = Math.min(box1.maxX, box2.maxX);
-                const yB = Math.min(box1.maxY, box2.maxY);
+                const area1 = bbox1.width * bbox1.height;
+                const area2 = bbox2.width * bbox2.height;
+                const union = area1 + area2 - intersection;
 
-                const interWidth = Math.max(0, xB - xA);
-                const interHeight = Math.max(0, yB - yA);
-                const interArea = interWidth * interHeight;
-
-                const box1Area = (box1.maxX - box1.minX) * (box1.maxY - box1.minY);
-                const box2Area = (box2.maxX - box2.minX) * (box2.maxY - box2.minY);
-                const unionArea = box1Area + box2Area - interArea;
-
-                if (unionArea === 0) return 0;
-                return interArea / unionArea;
+                return union > 0 ? intersection / union : 0;
             }
 
-            // Compute centroid of valid points
-            computeCentroid(points) {
-                let sumX = 0, sumY = 0, count = 0;
-                for (const point of points) {
-                    if (this.loader.isValidPoint(point)) {
-                        sumX += point[0];
-                        sumY += point[1];
-                        count++;
+            computeAllPairs(progressCallback) {
+                this.pairs = [];
+                const numFrames = this.sleapLoader.numFrames;
+                const numTracks = this.sleapLoader.numTracks;
+
+                for (let f = 0; f < numFrames; f++) {
+                    if (f % 100 === 0 && progressCallback) {
+                        progressCallback(f / numFrames);
                     }
-                }
-                if (count === 0) return null;
-                return { x: sumX / count, y: sumY / count };
-            }
 
-            // Compute Euclidean distance between two points
-            computeDistance(p1, p2) {
-                if (!p1 || !p2) return NaN;
-                const dx = p1.x - p2.x;
-                const dy = p1.y - p2.y;
-                return Math.sqrt(dx * dx + dy * dy);
-            }
-
-            // Compute centroid of bounding box
-            computeBboxCentroid(box) {
-                if (!box) return null;
-                return {
-                    x: (box.minX + box.maxX) / 2,
-                    y: (box.minY + box.maxY) / 2
-                };
-            }
-
-            // Count valid nodes in a pose
-            countValidNodes(points) {
-                let count = 0;
-                for (const point of points) {
-                    if (this.loader.isValidPoint(point)) count++;
-                }
-                return count;
-            }
-
-            // Compute all metrics for all track pairs on all frames
-            computeAllPairs() {
-                this.allPairs = [];
-
-                for (let f = 0; f < this.loader.numFrames; f++) {
-                    const framePoses = this.loader.getPosesForFrame(f);
+                    const framePoses = this.sleapLoader.getPosesForFrame(f);
                     if (!framePoses) continue;
 
-                    // Get all tracks that have valid poses on this frame
-                    const validTracks = [];
-                    for (let t = 0; t < this.loader.numTracks; t++) {
-                        const nodeCount = this.countValidNodes(framePoses[t]);
-                        if (nodeCount > 0) {
-                            validTracks.push(t);
-                        }
+                    // Compute bounding boxes for all tracks
+                    const bboxes = [];
+                    for (let t = 0; t < numTracks; t++) {
+                        bboxes.push(this.computeBoundingBox(framePoses[t]));
                     }
 
-                    // Compute metrics for all pairs
-                    for (let i = 0; i < validTracks.length; i++) {
-                        for (let j = i + 1; j < validTracks.length; j++) {
-                            const t1 = validTracks[i];
-                            const t2 = validTracks[j];
+                    // Compute pairwise IOUs
+                    for (let t1 = 0; t1 < numTracks; t1++) {
+                        if (!bboxes[t1]) continue;
+                        for (let t2 = t1 + 1; t2 < numTracks; t2++) {
+                            if (!bboxes[t2]) continue;
 
-                            const points1 = framePoses[t1];
-                            const points2 = framePoses[t2];
-
-                            const box1 = this.computeBoundingBox(points1);
-                            const box2 = this.computeBoundingBox(points2);
-
-                            const iou = this.computeIOU(box1, box2);
-
-                            const centroid1 = this.computeCentroid(points1);
-                            const centroid2 = this.computeCentroid(points2);
-                            const centroidDist = this.computeDistance(centroid1, centroid2);
-
-                            const bboxCentroid1 = this.computeBboxCentroid(box1);
-                            const bboxCentroid2 = this.computeBboxCentroid(box2);
-                            const bboxCentroidDist = this.computeDistance(bboxCentroid1, bboxCentroid2);
-
-                            const nodeCount1 = this.countValidNodes(points1);
-                            const nodeCount2 = this.countValidNodes(points2);
-                            const minNodeCount = Math.min(nodeCount1, nodeCount2);
-
-                            // Get tracking scores
-                            const score1 = this.loader.getTrackingScore(f, t1);
-                            const score2 = this.loader.getTrackingScore(f, t2);
-                            const avgTrackingScore = (isNaN(score1) || isNaN(score2)) ? NaN : (score1 + score2) / 2;
-
-                            this.allPairs.push({
-                                frame: f,
-                                track1: t1,
-                                track2: t2,
-                                iou,
-                                centroidDist,
-                                bboxCentroidDist,
-                                minNodeCount,
-                                avgTrackingScore,
-                                label: null  // null = unlabeled, true = duplicate, false = not duplicate
-                            });
+                            const iou = this.computeIOU(bboxes[t1], bboxes[t2]);
+                            if (iou > 0) {  // Only store pairs with overlap
+                                this.pairs.push({ frame: f, track1: t1, track2: t2, iou });
+                            }
                         }
                     }
                 }
 
-                log(`Computed metrics for ${this.allPairs.length} pose pairs`, 'success');
-                return this.allPairs;
+                if (progressCallback) progressCallback(1);
+                return this.pairs;
             }
 
-            // Get all values for a specific metric
-            getMetricValues(metricName) {
-                return this.allPairs.map(p => p[metricName]).filter(v => !isNaN(v) && isFinite(v));
-            }
-
-            // Get labeled pairs only
-            getLabeledPairs() {
-                return this.allPairs.filter(p => p.label !== null);
-            }
-
-            // Get next unlabeled pair
-            getNextUnlabeledPair() {
-                return this.allPairs.find(p => p.label === null);
-            }
-
-            // Label a pair
-            labelPair(pairIndex, label) {
-                if (pairIndex >= 0 && pairIndex < this.allPairs.length) {
-                    this.allPairs[pairIndex].label = label;
-                }
+            getPairsInRange(minIOU, maxIOU) {
+                return this.pairs.filter(p => p.iou >= minIOU && p.iou < maxIOU);
             }
         }
 
         // ============================================
-        // Histogram Controller - Creates and manages histograms
+        // Annotation Manager
         // ============================================
-        class HistogramController {
-            constructor(containerId) {
-                this.container = document.getElementById(containerId);
-                this.histograms = {};  // metricName -> { chart, logX, logY, canvas }
-                this.metricsConfig = [
-                    { name: 'iou', label: 'Bounding Box IOU', color: '#667eea' },
-                    { name: 'centroidDist', label: 'Centroid Distance', color: '#4ecdc4' },
-                    { name: 'bboxCentroidDist', label: 'BBox Centroid Distance', color: '#ffe66d' },
-                    { name: 'minNodeCount', label: 'Min Node Count', color: '#ff6b6b' },
-                    { name: 'avgTrackingScore', label: 'Avg Tracking Score', color: '#aa96da' }
-                ];
-                this.thresholds = {};  // metricName -> [{value, direction, id}]
-                this.onThresholdChange = null;  // Callback when thresholds change
+        class AnnotationManager {
+            constructor() {
+                this.labels = new Map();
             }
 
-            createHistograms(metricsComputer) {
-                this.container.innerHTML = '';
-                this.container.style.display = 'grid';
+            makeKey(frame, track1, track2) {
+                return `${frame}-${Math.min(track1, track2)}-${Math.max(track1, track2)}`;
+            }
 
-                for (const config of this.metricsConfig) {
-                    const values = metricsComputer.getMetricValues(config.name);
-                    if (values.length === 0) continue;
+            addLabel(frame, track1, track2, isDuplicate) {
+                this.labels.set(this.makeKey(frame, track1, track2), isDuplicate);
+            }
 
-                    const panel = document.createElement('div');
-                    panel.className = 'histogram-panel';
-                    panel.innerHTML = `
-                        <div class="histogram-header">
-                            <h4>${config.label}</h4>
-                            <div class="histogram-controls">
-                                <button class="small log-x-btn">Log X</button>
-                                <button class="small log-y-btn">Log Y</button>
-                            </div>
-                        </div>
-                        <canvas class="histogram-canvas" id="hist-${config.name}"></canvas>
-                        <div class="histogram-stats" id="stats-${config.name}"></div>
-                        <div class="threshold-controls">
-                            <div class="threshold-row">
-                                <input type="number" step="any" placeholder="Threshold" class="threshold-input">
-                                <select class="threshold-direction">
-                                    <option value="below">≤ (below passes)</option>
-                                    <option value="above">≥ (above passes)</option>
-                                </select>
-                                <button class="small add-threshold-btn">Add</button>
-                            </div>
-                            <div class="threshold-list" id="thresholds-${config.name}"></div>
-                        </div>
-                    `;
-                    this.container.appendChild(panel);
+            getLabel(frame, track1, track2) {
+                return this.labels.get(this.makeKey(frame, track1, track2));
+            }
 
-                    const canvas = panel.querySelector(`#hist-${config.name}`);
-                    const chart = this.createChart(canvas, values, config);
-
-                    this.histograms[config.name] = {
-                        chart,
-                        canvas,
-                        logX: false,
-                        logY: false,
-                        values,
-                        config
-                    };
-                    this.thresholds[config.name] = [];
-
-                    // Log X button
-                    const logXBtn = panel.querySelector('.log-x-btn');
-                    logXBtn.addEventListener('click', () => {
-                        const hist = this.histograms[config.name];
-                        hist.logX = !hist.logX;
-                        logXBtn.classList.toggle('active', hist.logX);
-                        this.updateHistogram(config.name, metricsComputer);
-                    });
-
-                    // Log Y button
-                    const logYBtn = panel.querySelector('.log-y-btn');
-                    logYBtn.addEventListener('click', () => {
-                        const hist = this.histograms[config.name];
-                        hist.logY = !hist.logY;
-                        logYBtn.classList.toggle('active', hist.logY);
-                        this.updateHistogram(config.name, metricsComputer);
-                    });
-
-                    // Threshold controls
-                    const thresholdInput = panel.querySelector('.threshold-input');
-                    const thresholdDirection = panel.querySelector('.threshold-direction');
-                    const addThresholdBtn = panel.querySelector('.add-threshold-btn');
-
-                    addThresholdBtn.addEventListener('click', () => {
-                        const value = parseFloat(thresholdInput.value);
-                        if (isNaN(value)) return;
-
-                        const direction = thresholdDirection.value;
-                        this.addThreshold(config.name, value, direction);
-                        thresholdInput.value = '';
-                    });
-
-                    // Update stats
-                    this.updateStats(config.name, values);
+            getLabelCounts() {
+                let duplicate = 0, notDuplicate = 0;
+                for (const val of this.labels.values()) {
+                    if (val) duplicate++;
+                    else notDuplicate++;
                 }
+                return { duplicate, notDuplicate, total: duplicate + notDuplicate };
             }
 
-            createChart(canvas, values, config) {
-                const bins = this.computeBins(values, false);
-
-                return new Chart(canvas, {
-                    type: 'bar',
-                    data: {
-                        labels: bins.labels,
-                        datasets: [{
-                            data: bins.counts,
-                            backgroundColor: config.color + '80',
-                            borderColor: config.color,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            x: {
-                                ticks: { color: '#888', maxRotation: 45 },
-                                grid: { color: '#333' }
-                            },
-                            y: {
-                                ticks: { color: '#888' },
-                                grid: { color: '#333' },
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-
-            computeBins(values, logScale, numBins = 20) {
-                if (values.length === 0) return { labels: [], counts: [] };
-
-                let min = Math.min(...values);
-                let max = Math.max(...values);
-
-                // Ensure we have a valid range
-                if (min === max) {
-                    return { labels: [min.toFixed(2)], counts: [values.length] };
-                }
-
-                const counts = new Array(numBins).fill(0);
-                const labels = [];
-
-                if (logScale && min > 0) {
-                    const logMin = Math.log10(min);
-                    const logMax = Math.log10(max);
-                    const logStep = (logMax - logMin) / numBins;
-
-                    for (let i = 0; i < numBins; i++) {
-                        const binStart = Math.pow(10, logMin + i * logStep);
-                        const binEnd = Math.pow(10, logMin + (i + 1) * logStep);
-                        labels.push(binStart.toFixed(2));
-                    }
-
-                    for (const v of values) {
-                        const logV = Math.log10(v);
-                        let binIdx = Math.floor((logV - logMin) / logStep);
-                        binIdx = Math.max(0, Math.min(numBins - 1, binIdx));
-                        counts[binIdx]++;
-                    }
-                } else {
-                    const step = (max - min) / numBins;
-
-                    for (let i = 0; i < numBins; i++) {
-                        const binStart = min + i * step;
-                        labels.push(binStart.toFixed(2));
-                    }
-
-                    for (const v of values) {
-                        let binIdx = Math.floor((v - min) / step);
-                        binIdx = Math.max(0, Math.min(numBins - 1, binIdx));
-                        counts[binIdx]++;
-                    }
-                }
-
-                return { labels, counts };
-            }
-
-            updateHistogram(metricName, metricsComputer) {
-                const hist = this.histograms[metricName];
-                if (!hist) return;
-
-                const values = metricsComputer.getMetricValues(metricName);
-                const bins = this.computeBins(values, hist.logX);
-
-                hist.chart.data.labels = bins.labels;
-                hist.chart.data.datasets[0].data = bins.counts;
-
-                // Update Y scale for log
-                hist.chart.options.scales.y.type = hist.logY ? 'logarithmic' : 'linear';
-
-                hist.chart.update();
-                this.updateStats(metricName, values);
-            }
-
-            updateAllHistograms(metricsComputer) {
-                for (const metricName of Object.keys(this.histograms)) {
-                    this.updateHistogram(metricName, metricsComputer);
-                }
-            }
-
-            updateStats(metricName, values) {
-                const statsDiv = document.getElementById(`stats-${metricName}`);
-                if (!statsDiv || values.length === 0) return;
-
-                const min = Math.min(...values);
-                const max = Math.max(...values);
-                const mean = values.reduce((a, b) => a + b, 0) / values.length;
-                const sorted = [...values].sort((a, b) => a - b);
-                const median = sorted[Math.floor(sorted.length / 2)];
-
-                statsDiv.innerHTML = `
-                    <span>N: ${values.length}</span>
-                    <span>Min: ${min.toFixed(3)}</span>
-                    <span>Max: ${max.toFixed(3)}</span>
-                    <span>Mean: ${mean.toFixed(3)}</span>
-                    <span>Median: ${median.toFixed(3)}</span>
-                `;
-            }
-
-            addThreshold(metricName, value, direction) {
-                const id = Date.now();
-                this.thresholds[metricName].push({ value, direction, id });
-                this.renderThresholdList(metricName);
-                if (this.onThresholdChange) this.onThresholdChange();
-            }
-
-            removeThreshold(metricName, id) {
-                this.thresholds[metricName] = this.thresholds[metricName].filter(t => t.id !== id);
-                this.renderThresholdList(metricName);
-                if (this.onThresholdChange) this.onThresholdChange();
-            }
-
-            renderThresholdList(metricName) {
-                const listDiv = document.getElementById(`thresholds-${metricName}`);
-                if (!listDiv) return;
-
-                listDiv.innerHTML = '';
-                for (const t of this.thresholds[metricName]) {
-                    const item = document.createElement('div');
-                    item.className = 'threshold-item';
-                    item.innerHTML = `
-                        <span>${t.direction === 'below' ? '≤' : '≥'} ${t.value.toFixed(3)}</span>
-                        <button class="small remove-btn">×</button>
-                    `;
-                    item.querySelector('.remove-btn').addEventListener('click', () => {
-                        this.removeThreshold(metricName, t.id);
-                    });
-                    listDiv.appendChild(item);
-                }
-            }
-
-            getAllThresholds() {
+            exportLabels() {
                 const result = [];
-                for (const [metricName, thresholds] of Object.entries(this.thresholds)) {
-                    for (const t of thresholds) {
-                        result.push({ metricName, ...t });
-                    }
+                for (const [key, isDuplicate] of this.labels.entries()) {
+                    const [frame, track1, track2] = key.split('-').map(Number);
+                    result.push({ frame, track1, track2, isDuplicate });
                 }
                 return result;
             }
         }
 
         // ============================================
-        // Threshold Manager - Computes Precision/Accuracy for thresholds
+        // Histogram Controller
         // ============================================
-        class ThresholdManager {
-            constructor(metricsComputer, histogramController) {
-                this.metricsComputer = metricsComputer;
-                this.histogramController = histogramController;
+        class HistogramController {
+            constructor(canvasId, annotationManager) {
+                this.canvas = document.getElementById(canvasId);
                 this.chart = null;
+                this.annotationManager = annotationManager;
+                this.binCount = 20;
+                this.pairs = [];
+                this.onRangeSelected = null;
             }
 
-            initChart(canvasId) {
-                const canvas = document.getElementById(canvasId);
-                this.chart = new Chart(canvas, {
-                    type: 'scatter',
+            render(pairs) {
+                this.pairs = pairs;
+                const bins = new Array(this.binCount).fill(0);
+                const duplicateBins = new Array(this.binCount).fill(0);
+                const notDuplicateBins = new Array(this.binCount).fill(0);
+
+                for (const pair of pairs) {
+                    const binIndex = Math.min(Math.floor(pair.iou * this.binCount), this.binCount - 1);
+                    bins[binIndex]++;
+
+                    const label = this.annotationManager.getLabel(pair.frame, pair.track1, pair.track2);
+                    if (label === true) duplicateBins[binIndex]++;
+                    else if (label === false) notDuplicateBins[binIndex]++;
+                }
+
+                const labels = Array.from({ length: this.binCount }, (_, i) =>
+                    `${(i * 0.05).toFixed(2)}-${((i + 1) * 0.05).toFixed(2)}`);
+
+                if (this.chart) this.chart.destroy();
+
+                this.chart = new Chart(this.canvas, {
+                    type: 'bar',
                     data: {
-                        datasets: [{
-                            label: 'Thresholds',
-                            data: [],
-                            backgroundColor: '#667eea',
-                            borderColor: '#667eea',
-                            pointRadius: 8,
-                            pointHoverRadius: 10
-                        }]
+                        labels,
+                        datasets: [
+                            {
+                                label: 'Pose Pairs',
+                                data: bins,
+                                backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                                borderColor: 'rgba(102, 126, 234, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Labeled Duplicate',
+                                data: duplicateBins,
+                                backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 1,
+                                type: 'bar'
+                            },
+                            {
+                                label: 'Labeled Not Duplicate',
+                                data: notDuplicateBins,
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgba(239, 68, 68, 1)',
+                                borderWidth: 1,
+                                type: 'bar'
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) => {
-                                        const point = ctx.raw;
-                                        return `${point.label}: P=${point.x.toFixed(3)}, A=${point.y.toFixed(3)}`;
-                                    }
-                                }
+                        onClick: (e, elements) => {
+                            if (elements.length > 0 && this.onRangeSelected) {
+                                const binIndex = elements[0].index;
+                                const minIOU = binIndex * 0.05;
+                                const maxIOU = (binIndex + 1) * 0.05;
+                                this.onRangeSelected(minIOU, maxIOU);
                             }
                         },
                         scales: {
-                            x: {
-                                title: { display: true, text: 'Precision', color: '#888' },
-                                min: 0, max: 1,
-                                ticks: { color: '#888' },
-                                grid: { color: '#333' }
-                            },
-                            y: {
-                                title: { display: true, text: 'Accuracy', color: '#888' },
-                                min: 0, max: 1,
-                                ticks: { color: '#888' },
-                                grid: { color: '#333' }
-                            }
+                            x: { title: { display: true, text: 'IOU Range', color: '#aaa' }, ticks: { color: '#888' }, grid: { color: '#333' } },
+                            y: { title: { display: true, text: 'Count', color: '#aaa' }, beginAtZero: true, ticks: { color: '#888' }, grid: { color: '#333' } }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#aaa' } }
                         }
                     }
                 });
             }
+        }
 
-            // Compute precision and accuracy for a single threshold
-            computeMetrics(metricName, threshold, direction) {
-                const labeledPairs = this.metricsComputer.getLabeledPairs();
-                if (labeledPairs.length === 0) return null;
-
-                let TP = 0, FP = 0, TN = 0, FN = 0;
-
-                for (const pair of labeledPairs) {
-                    const value = pair[metricName];
-                    if (isNaN(value)) continue;
-
-                    // Predicted as duplicate based on threshold
-                    const predictedDuplicate = direction === 'below'
-                        ? value <= threshold
-                        : value >= threshold;
-
-                    // Actual label (true = duplicate)
-                    const actualDuplicate = pair.label === true;
-
-                    if (predictedDuplicate && actualDuplicate) TP++;
-                    else if (predictedDuplicate && !actualDuplicate) FP++;
-                    else if (!predictedDuplicate && actualDuplicate) FN++;
-                    else TN++;
-                }
-
-                const precision = (TP + FP) > 0 ? TP / (TP + FP) : 0;
-                const accuracy = (TP + TN + FP + FN) > 0 ? (TP + TN) / (TP + TN + FP + FN) : 0;
-
-                return { precision, accuracy, TP, FP, TN, FN };
+        // ============================================
+        // Pose Pair Renderer
+        // ============================================
+        class PosePairRenderer {
+            constructor(canvasId, videoDecoder, sleapLoader) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.videoDecoder = videoDecoder;
+                this.sleapLoader = sleapLoader;
+                this.padding = 50;
             }
 
-            updateChart() {
-                if (!this.chart) return;
+            computeBbox(poseNodes) {
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                for (const node of poseNodes) {
+                    if (this.sleapLoader.isValidPoint(node)) {
+                        minX = Math.min(minX, node[0]);
+                        minY = Math.min(minY, node[1]);
+                        maxX = Math.max(maxX, node[0]);
+                        maxY = Math.max(maxY, node[1]);
+                    }
+                }
+                return { minX, minY, maxX, maxY };
+            }
 
-                const thresholds = this.histogramController.getAllThresholds();
-                const points = [];
+            unionBbox(bbox1, bbox2) {
+                const minX = Math.max(0, Math.min(bbox1.minX, bbox2.minX) - this.padding);
+                const minY = Math.max(0, Math.min(bbox1.minY, bbox2.minY) - this.padding);
+                const maxX = Math.max(bbox1.maxX, bbox2.maxX) + this.padding;
+                const maxY = Math.max(bbox1.maxY, bbox2.maxY) + this.padding;
+                return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
+            }
 
-                const metricColors = {
-                    'iou': '#667eea',
-                    'centroidDist': '#4ecdc4',
-                    'bboxCentroidDist': '#ffe66d',
-                    'minNodeCount': '#ff6b6b',
-                    'avgTrackingScore': '#aa96da'
-                };
+            async renderPair(frame, track1, track2) {
+                const result = await this.videoDecoder.getFrame(frame);
+                if (!result?.bitmap) return false;
 
-                for (const t of thresholds) {
-                    const metrics = this.computeMetrics(t.metricName, t.value, t.direction);
-                    if (!metrics) continue;
+                const framePoses = this.sleapLoader.getPosesForFrame(frame);
+                const pose1 = framePoses[track1];
+                const pose2 = framePoses[track2];
 
-                    const symbol = t.direction === 'below' ? '≤' : '≥';
-                    points.push({
-                        x: metrics.precision,
-                        y: metrics.accuracy,
-                        label: `${t.metricName} ${symbol} ${t.value.toFixed(2)}`,
-                        backgroundColor: metricColors[t.metricName] || '#667eea'
-                    });
+                const bbox1 = this.computeBbox(pose1);
+                const bbox2 = this.computeBbox(pose2);
+                const unionBbox = this.unionBbox(bbox1, bbox2);
+
+                // Limit canvas size
+                const maxDim = 600;
+                const scale = Math.min(1, maxDim / Math.max(unionBbox.width, unionBbox.height));
+                this.canvas.width = unionBbox.width * scale;
+                this.canvas.height = unionBbox.height * scale;
+
+                this.ctx.scale(scale, scale);
+
+                // Draw cropped frame
+                this.ctx.drawImage(
+                    result.bitmap,
+                    unionBbox.minX, unionBbox.minY, unionBbox.width, unionBbox.height,
+                    0, 0, unionBbox.width, unionBbox.height
+                );
+
+                // Draw poses
+                this.drawPose(pose1, '#00FFFF', unionBbox);  // Cyan
+                this.drawPose(pose2, '#FF00FF', unionBbox);  // Magenta
+
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);  // Reset transform
+                return true;
+            }
+
+            drawPose(poseNodes, color, cropBbox) {
+                // Draw edges
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 3;
+                this.ctx.lineCap = 'round';
+
+                for (const [srcIdx, dstIdx] of this.sleapLoader.edges) {
+                    const src = poseNodes[srcIdx];
+                    const dst = poseNodes[dstIdx];
+                    if (!this.sleapLoader.isValidPoint(src) || !this.sleapLoader.isValidPoint(dst)) continue;
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(src[0] - cropBbox.minX, src[1] - cropBbox.minY);
+                    this.ctx.lineTo(dst[0] - cropBbox.minX, dst[1] - cropBbox.minY);
+                    this.ctx.stroke();
                 }
 
-                this.chart.data.datasets[0].data = points;
-                this.chart.data.datasets[0].pointBackgroundColor = points.map(p => p.backgroundColor);
-                this.chart.update();
+                // Draw nodes
+                this.ctx.fillStyle = color;
+                for (const node of poseNodes) {
+                    if (!this.sleapLoader.isValidPoint(node)) continue;
+                    this.ctx.beginPath();
+                    this.ctx.arc(node[0] - cropBbox.minX, node[1] - cropBbox.minY, 5, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
             }
         }
 
         // ============================================
-        // Video Player UI
+        // Main Application
         // ============================================
-
         let videoDecoder = null;
         let sleapLoader = null;
-        let poseData = null;
-
-        // Metrics and annotation state
-        let metricsComputer = null;
+        let iouComputer = null;
+        let annotationManager = new AnnotationManager();
         let histogramController = null;
-        let thresholdManager = null;
+        let pairRenderer = null;
+
+        let allPairs = [];
+        let currentPairs = [];
         let currentPairIndex = -1;
-
-        // Pose rendering settings
-        const trackColors = [
-            '#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3',
-            '#f38181', '#aa96da', '#fcbad3', '#a8d8ea',
-            '#ff9a8b', '#88d8b0', '#ffcc5c', '#96ceb4'
-        ];
-        let visibleTracks = new Set();
-
-        let currentFrame = 0;
-        let totalFrames = 0;
-        let fps = 0;
-        let fileName = '';
-        let isPlaying = false;
-        let playInterval = null;
-        let videoInfo = null;
-
-        // Canvas and zoom/pan state
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let scale = 1;
-        let offsetX = 0;
-        let offsetY = 0;
-        let isDragging = false;
-        let dragStartX = 0;
-        let dragStartY = 0;
-        let currentBitmap = null;
-
-        // Performance metrics
-        let lastSeekTime = 0;
+        let currentPair = null;
 
         // UI Elements
-        const loadBtn = document.getElementById('loadBtn');
-        const fileInput = document.getElementById('fileInput');
-        const playBtn = document.getElementById('playBtn');
-        const resetZoomBtn = document.getElementById('resetZoomBtn');
-        const canvasContainer = document.getElementById('canvasContainer');
-        const seekbar = document.getElementById('seekbar');
-        const seekbarProgress = document.getElementById('seekbarProgress');
-        const seekbarThumb = document.getElementById('seekbarThumb');
-        const seekbarContainer = document.getElementById('seekbarContainer');
-        const metricsDiv = document.getElementById('metrics');
-        const bufferSizeInput = document.getElementById('bufferSize');
-        const lookaheadInput = document.getElementById('lookaheadSize');
+        const loadVideoBtn = document.getElementById('loadVideoBtn');
+        const loadPoseBtn = document.getElementById('loadPoseBtn');
+        const computeBtn = document.getElementById('computeBtn');
+        const videoFileInput = document.getElementById('videoFileInput');
+        const poseFileInput = document.getElementById('poseFileInput');
+        const statusText = document.getElementById('statusText');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
         const errorMsg = document.getElementById('errorMsg');
-        const cacheVizContainer = document.getElementById('cacheVizContainer');
-        const cacheVizCanvas = document.getElementById('cacheVizCanvas');
-        const cacheVizCtx = cacheVizCanvas.getContext('2d');
+        const histogramPanel = document.getElementById('histogramPanel');
+        const annotationPanel = document.getElementById('annotationPanel');
+        const summaryPanel = document.getElementById('summaryPanel');
 
-        // Check WebCodecs support
-        if (!('VideoDecoder' in window)) {
-            showError('WebCodecs API is not supported in this browser. Please use Chrome, Edge, or Firefox.');
-            loadBtn.disabled = true;
-        }
+        let videoLoaded = false;
+        let posesLoaded = false;
 
         function showError(msg) {
             errorMsg.textContent = msg;
@@ -2174,821 +1040,246 @@
             errorMsg.style.display = 'none';
         }
 
-        // ============================================
-        // Cache Visualization (canvas-based for 100k+ frames)
-        // ============================================
-        function renderCacheVisualization() {
-            if (!videoDecoder || totalFrames === 0) return;
-
-            const rect = cacheVizCanvas.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
-            const width = rect.width * dpr;
-            const height = rect.height * dpr;
-
-            // Set canvas size for high DPI
-            if (cacheVizCanvas.width !== width || cacheVizCanvas.height !== height) {
-                cacheVizCanvas.width = width;
-                cacheVizCanvas.height = height;
-            }
-
-            cacheVizCtx.fillStyle = '#333';
-            cacheVizCtx.fillRect(0, 0, width, height);
-
-            // For very large videos, each pixel represents multiple frames
-            const framesPerPixel = Math.max(1, totalFrames / width);
-            const pixelsPerFrame = width / totalFrames;
-
-            // Get cached frame indices
-            const cachedFrames = new Set(videoDecoder.cache.keys());
-            const keyframes = new Set(videoDecoder.keyframeIndices);
-
-            if (framesPerPixel <= 1) {
-                // Fewer frames than pixels - draw individual marks
-                const frameWidth = Math.max(1, pixelsPerFrame);
-
-                // Draw keyframes first (background layer)
-                cacheVizCtx.fillStyle = '#fbbf24';
-                for (const kf of keyframes) {
-                    const x = (kf / totalFrames) * width;
-                    cacheVizCtx.fillRect(x, 0, Math.max(1, frameWidth), height);
-                }
-
-                // Draw cached frames
-                cacheVizCtx.fillStyle = '#4ade80';
-                for (const frame of cachedFrames) {
-                    const x = (frame / totalFrames) * width;
-                    cacheVizCtx.fillRect(x, 0, Math.max(1, frameWidth), height);
-                }
-            } else {
-                // More frames than pixels - aggregate
-                for (let px = 0; px < width; px++) {
-                    const frameStart = Math.floor(px * framesPerPixel);
-                    const frameEnd = Math.floor((px + 1) * framesPerPixel);
-
-                    let hasCached = false;
-                    let hasKeyframe = false;
-
-                    for (let f = frameStart; f < frameEnd; f++) {
-                        if (cachedFrames.has(f)) hasCached = true;
-                        if (keyframes.has(f)) hasKeyframe = true;
-                    }
-
-                    if (hasCached) {
-                        cacheVizCtx.fillStyle = '#4ade80';
-                        cacheVizCtx.fillRect(px, 0, 1, height);
-                    } else if (hasKeyframe) {
-                        cacheVizCtx.fillStyle = '#fbbf24';
-                        cacheVizCtx.fillRect(px, 0, 1, height);
-                    }
-                }
-            }
-
-            // Draw current frame marker (always on top)
-            const currentX = (currentFrame / totalFrames) * width;
-            cacheVizCtx.fillStyle = '#667eea';
-            cacheVizCtx.fillRect(currentX - 1, 0, 3, height);
+        function updateStatus(msg, isReady = false, isError = false) {
+            statusText.textContent = msg;
+            statusText.className = 'status-text' + (isReady ? ' ready' : '') + (isError ? ' error' : '');
         }
 
-        // Click on cache viz to seek
-        cacheVizCanvas.addEventListener('click', (e) => {
-            if (!videoDecoder || totalFrames === 0) return;
-            const rect = cacheVizCanvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const frame = Math.floor((x / rect.width) * totalFrames);
-            log(`Seek to frame ${frame} via cache visualization`, 'info');
-            seekToFrame(frame);
-        });
-
-        // Load video from file handle, File object, or URL string
-        async function loadVideo(source) {
-            hideError();
-
-            try {
-                // Get file name
-                if (typeof source === 'string') {
-                    // URL - extract filename from path
-                    fileName = source.split('/').pop().split('?')[0] || 'remote video';
-                } else if (source.name) {
-                    fileName = source.name;
-                } else if (source.getFile) {
-                    const f = await source.getFile();
-                    fileName = f.name;
-                }
-
-                log(`Loading video: ${fileName}`, 'info');
-
-                // Clean up previous decoder
-                if (videoDecoder) {
-                    videoDecoder.close();
-                }
-
-                // Create new decoder
-                const cacheSize = parseInt(bufferSizeInput.value) || 60;
-                const lookahead = parseInt(lookaheadInput.value) || 10;
-                videoDecoder = new OnDemandVideoDecoder({ cacheSize, lookahead });
-
-                log(`Decoder configured: cacheSize=${cacheSize}, lookahead=${lookahead}`, 'info');
-
-                // Initialize with file handle or file object (chunked reading, no full copy)
-                const startTime = performance.now();
-                videoInfo = await videoDecoder.init(source);
-                const initTime = performance.now() - startTime;
-
-                totalFrames = videoInfo.totalFrames;
-                fps = videoInfo.fps;
-
-                log(`Video loaded in ${initTime.toFixed(0)}ms`, 'success');
-                log(`Codec: ${videoInfo.codec}, Resolution: ${videoInfo.width}x${videoInfo.height}`, 'info');
-                log(`Frames: ${totalFrames}, FPS: ${fps.toFixed(2)}, Keyframes: ${videoInfo.keyframes}`, 'info');
-
-                // Show UI
-                canvasContainer.style.display = 'block';
-                seekbarContainer.style.display = 'block';
-                cacheVizContainer.style.display = 'block';
-                metricsDiv.style.display = 'block';
-                playBtn.disabled = false;
-                resetZoomBtn.disabled = false;
-
-                // Reset state
-                currentFrame = 0;
-                scale = 1;
-                offsetX = 0;
-                offsetY = 0;
-
-                updateMetrics();
-                renderCacheVisualization();
-
-                // Load first frame
-                await seekToFrame(0);
-
-            } catch (err) {
-                console.error('Error loading video:', err);
-                log(`Error loading video: ${err.message}`, 'error');
-                showError('Error loading video: ' + err.message);
+        function checkReadyToCompute() {
+            computeBtn.disabled = !(videoLoaded && posesLoaded);
+            if (videoLoaded && posesLoaded) {
+                updateStatus('Ready to compute IOUs. Click "Compute IOUs" to begin.', true);
             }
         }
 
-        // Use File System Access API if available, otherwise fall back to file input
-        loadBtn.addEventListener('click', async () => {
-            if ('showOpenFilePicker' in window) {
-                console.log('[duplicate-pose-investigator] Using File System Access API (no file copy)');
-                try {
-                    const [handle] = await window.showOpenFilePicker({
-                        types: [{
-                            description: 'Video files',
-                            accept: {
-                                'video/mp4': ['.mp4', '.m4v'],
-                                'video/quicktime': ['.mov'],
-                                'video/webm': ['.webm'],
-                            }
-                        }],
-                        multiple: false
-                    });
-                    await loadVideo(handle);
-                } catch (err) {
-                    // User cancelled or API error - fall back to file input
-                    if (err.name !== 'AbortError') {
-                        console.log('File System Access API failed, using fallback:', err);
-                        fileInput.click();
-                    }
-                }
-            } else {
-                // Browser doesn't support File System Access API
-                console.log('[duplicate-pose-investigator] File System Access API not available, using file input fallback');
-                fileInput.click();
-            }
-        });
+        // Video loading
+        loadVideoBtn.addEventListener('click', () => videoFileInput.click());
 
-        // Fallback file input handler
-        fileInput.addEventListener('change', async (e) => {
+        videoFileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            console.log('[duplicate-pose-investigator] Loading via file input fallback');
-            await loadVideo(file);
-        });
 
-        // URL loading UI
-        const loadUrlBtn = document.getElementById('loadUrlBtn');
-        const urlInputContainer = document.getElementById('urlInputContainer');
-        const urlInput = document.getElementById('urlInput');
-        const urlLoadBtn = document.getElementById('urlLoadBtn');
-        const urlCancelBtn = document.getElementById('urlCancelBtn');
-
-        loadUrlBtn.addEventListener('click', () => {
-            urlInputContainer.style.display = 'flex';
-            urlInput.focus();
-        });
-
-        urlCancelBtn.addEventListener('click', () => {
-            urlInputContainer.style.display = 'none';
-            urlInput.value = '';
-        });
-
-        urlLoadBtn.addEventListener('click', async () => {
-            const url = urlInput.value.trim();
-            if (!url) return;
-
-            urlInputContainer.style.display = 'none';
-            log(`Loading from URL: ${url}`, 'info');
+            hideError();
+            updateStatus('Loading video...');
+            log(`Loading video: ${file.name}`, 'info');
 
             try {
-                await loadVideo(url);
+                if (videoDecoder) videoDecoder.close();
+                videoDecoder = new OnDemandVideoDecoder({ cacheSize: 30, lookahead: 5 });
+                const info = await videoDecoder.init(file);
+                log(`Video loaded: ${info.width}x${info.height}, ${info.totalFrames} frames`, 'success');
+                videoLoaded = true;
+                updateStatus(`Video loaded: ${info.totalFrames} frames`);
+                checkReadyToCompute();
             } catch (err) {
-                log(`Failed to load URL: ${err.message}`, 'error');
-                showError('Failed to load URL: ' + err.message);
+                log(`Error loading video: ${err.message}`, 'error');
+                showError('Error loading video: ' + err.message);
+                updateStatus('Error loading video', false, true);
             }
         });
 
-        // Allow Enter key to submit URL
-        urlInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                urlLoadBtn.click();
-            } else if (e.key === 'Escape') {
-                urlCancelBtn.click();
-            }
-        });
-
-        // ============================================
-        // Pose Data Loading
-        // ============================================
-        const loadPoseBtn = document.getElementById('loadPoseBtn');
-        const poseFileInput = document.getElementById('poseFileInput');
-        const poseControls = document.getElementById('poseControls');
-        const poseStatus = document.getElementById('poseStatus');
-        const trackToggles = document.getElementById('trackToggles');
-
-        loadPoseBtn.addEventListener('click', () => {
-            poseFileInput.click();
-        });
+        // Pose loading
+        loadPoseBtn.addEventListener('click', () => poseFileInput.click());
 
         poseFileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            log(`Loading pose data: ${file.name}`, 'info');
+            hideError();
+            updateStatus('Loading poses...');
+            log(`Loading poses: ${file.name}`, 'info');
 
             try {
                 sleapLoader = new SLEAPLoader();
-                poseData = await sleapLoader.loadFile(file);
-
-                // Show pose controls
-                poseControls.style.display = 'block';
-
-                // Update status
-                poseStatus.textContent = `Loaded: ${poseData.numNodes} nodes, ${poseData.numTracks} tracks, ${poseData.numFrames} frames`;
-                poseStatus.className = 'pose-status';
-
-                // Initialize visible tracks
-                visibleTracks = new Set();
-                for (let i = 0; i < poseData.numTracks; i++) {
-                    visibleTracks.add(i);
-                }
-
-                // Create track toggles
-                updateTrackToggles();
-
-                log(`Pose data loaded: ${poseData.nodeNames.join(', ')}`, 'success');
-
-                // Initialize metrics and histograms
-                metricsComputer = new MetricsComputer(sleapLoader);
-                metricsComputer.computeAllPairs();
-
-                histogramController = new HistogramController('histogramsContainer');
-                histogramController.createHistograms(metricsComputer);
-
-                // Show histograms and split panel
-                document.getElementById('histogramsContainer').style.display = 'grid';
-                document.getElementById('splitPanelContainer').style.display = 'grid';
-
-                // Initialize threshold manager and precision/accuracy chart
-                thresholdManager = new ThresholdManager(metricsComputer, histogramController);
-                thresholdManager.initChart('precisionAccuracyCanvas');
-
-                // Connect threshold changes to chart updates
-                histogramController.onThresholdChange = () => {
-                    thresholdManager.updateChart();
-                };
-
-                // Initialize annotation system
-                initAnnotationSystem();
-
-                // Re-render current frame to show poses
-                if (currentBitmap) {
-                    renderFrame(currentBitmap);
-                }
-
+                await sleapLoader.loadFile(file);
+                log(`Poses loaded: ${sleapLoader.numTracks} tracks, ${sleapLoader.numFrames} frames`, 'success');
+                posesLoaded = true;
+                updateStatus(`Poses loaded: ${sleapLoader.numTracks} tracks, ${sleapLoader.numFrames} frames`);
+                checkReadyToCompute();
             } catch (err) {
-                console.error('Error loading pose data:', err);
-                log(`Error loading pose data: ${err.message}`, 'error');
-                showError('Error loading pose data: ' + err.message);
+                log(`Error loading poses: ${err.message}`, 'error');
+                showError('Error loading poses: ' + err.message);
+                updateStatus('Error loading poses', false, true);
             }
         });
 
-        function updateTrackToggles() {
-            trackToggles.innerHTML = '';
-            if (!poseData) return;
+        // Compute IOUs
+        computeBtn.addEventListener('click', async () => {
+            hideError();
+            computeBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Computing IOUs...';
 
-            for (let i = 0; i < poseData.numTracks; i++) {
-                const toggle = document.createElement('label');
-                toggle.className = 'track-toggle';
+            try {
+                iouComputer = new IOUComputer(sleapLoader);
 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = visibleTracks.has(i);
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.checked) {
-                        visibleTracks.add(i);
-                    } else {
-                        visibleTracks.delete(i);
-                    }
-                    if (currentBitmap) renderFrame(currentBitmap);
+                // Compute with progress updates
+                await new Promise(resolve => {
+                    setTimeout(() => {
+                        allPairs = iouComputer.computeAllPairs((progress) => {
+                            progressFill.style.width = (progress * 100) + '%';
+                            progressText.textContent = `Computing IOUs... ${Math.round(progress * 100)}%`;
+                        });
+                        resolve();
+                    }, 50);
                 });
 
-                const colorDot = document.createElement('div');
-                colorDot.className = 'color-dot';
-                colorDot.style.background = trackColors[i % trackColors.length];
+                log(`Computed ${allPairs.length} overlapping pose pairs`, 'success');
 
-                const label = document.createElement('span');
-                label.textContent = poseData.trackNames[i] || `Track ${i + 1}`;
+                progressContainer.style.display = 'none';
+                updateStatus(`Found ${allPairs.length} overlapping pose pairs`, true);
 
-                toggle.appendChild(checkbox);
-                toggle.appendChild(colorDot);
-                toggle.appendChild(label);
-                trackToggles.appendChild(toggle);
+                // Initialize components
+                histogramController = new HistogramController('histogramCanvas', annotationManager);
+                histogramController.onRangeSelected = selectRange;
+                histogramController.render(allPairs);
+
+                pairRenderer = new PosePairRenderer('annotationCanvas', videoDecoder, sleapLoader);
+
+                // Show panels
+                histogramPanel.classList.remove('hidden');
+                annotationPanel.classList.remove('hidden');
+                summaryPanel.classList.remove('hidden');
+
+                updateSummary();
+
+            } catch (err) {
+                log(`Error computing IOUs: ${err.message}`, 'error');
+                showError('Error computing IOUs: ' + err.message);
+                progressContainer.style.display = 'none';
+                computeBtn.disabled = false;
             }
-        }
-
-        // Pose rendering settings change handlers
-        ['showPoses', 'showNodes', 'showEdges', 'showLabels'].forEach(id => {
-            document.getElementById(id).addEventListener('change', () => {
-                if (currentBitmap) renderFrame(currentBitmap);
-            });
         });
 
-        ['nodeSize', 'edgeWidth', 'poseOpacity'].forEach(id => {
-            document.getElementById(id).addEventListener('input', () => {
-                if (currentBitmap) renderFrame(currentBitmap);
-            });
+        // Select IOU range from histogram
+        function selectRange(minIOU, maxIOU) {
+            log(`Selected IOU range: ${minIOU.toFixed(2)} - ${maxIOU.toFixed(2)}`, 'info');
+
+            // Get unlabeled pairs in this range
+            currentPairs = allPairs.filter(p =>
+                p.iou >= minIOU && p.iou < maxIOU &&
+                annotationManager.getLabel(p.frame, p.track1, p.track2) === undefined
+            );
+
+            if (currentPairs.length === 0) {
+                log('All pairs in this range have been labeled', 'warn');
+                document.getElementById('pairInfo').textContent = 'All pairs in this range labeled';
+                document.getElementById('pairIOU').textContent = '--';
+                return;
+            }
+
+            // Pick random pair
+            currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+            showCurrentPair();
+        }
+
+        async function showCurrentPair() {
+            if (currentPairIndex < 0 || currentPairIndex >= currentPairs.length) return;
+
+            currentPair = currentPairs[currentPairIndex];
+            document.getElementById('pairInfo').textContent =
+                `Frame: ${currentPair.frame} | Track ${currentPair.track1} vs Track ${currentPair.track2}`;
+            document.getElementById('pairIOU').textContent = currentPair.iou.toFixed(3);
+
+            await pairRenderer.renderPair(currentPair.frame, currentPair.track1, currentPair.track2);
+        }
+
+        function labelCurrent(isDuplicate) {
+            if (!currentPair) return;
+
+            annotationManager.addLabel(currentPair.frame, currentPair.track1, currentPair.track2, isDuplicate);
+            log(`Labeled frame ${currentPair.frame} tracks ${currentPair.track1}-${currentPair.track2} as ${isDuplicate ? 'DUPLICATE' : 'NOT duplicate'}`,
+                isDuplicate ? 'success' : 'info');
+
+            // Update histogram
+            histogramController.render(allPairs);
+            updateSummary();
+
+            // Move to next pair
+            nextPair();
+        }
+
+        function skipCurrent() {
+            if (!currentPair) return;
+            log(`Skipped frame ${currentPair.frame}`, 'info');
+            currentPairs.splice(currentPairIndex, 1);
+
+            if (currentPairs.length > 0) {
+                currentPairIndex = currentPairIndex % currentPairs.length;
+                showCurrentPair();
+            } else {
+                document.getElementById('pairInfo').textContent = 'No more pairs in this range';
+                document.getElementById('pairIOU').textContent = '--';
+                currentPair = null;
+            }
+        }
+
+        function nextPair() {
+            currentPairs.splice(currentPairIndex, 1);
+
+            if (currentPairs.length > 0) {
+                currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+                showCurrentPair();
+            } else {
+                document.getElementById('pairInfo').textContent = 'All pairs in this range labeled';
+                document.getElementById('pairIOU').textContent = '--';
+                currentPair = null;
+            }
+        }
+
+        function updateSummary() {
+            const counts = annotationManager.getLabelCounts();
+            document.getElementById('totalPairs').textContent = allPairs.length;
+            document.getElementById('labeledCount').textContent = counts.total;
+            document.getElementById('duplicateCount').textContent = counts.duplicate;
+            document.getElementById('notDuplicateCount').textContent = counts.notDuplicate;
+        }
+
+        // Button handlers
+        document.getElementById('duplicateBtn').addEventListener('click', () => labelCurrent(true));
+        document.getElementById('notDuplicateBtn').addEventListener('click', () => labelCurrent(false));
+        document.getElementById('skipBtn').addEventListener('click', skipCurrent);
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const data = annotationManager.exportLabels();
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'duplicate_pose_labels.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            log(`Exported ${data.length} labels`, 'success');
         });
-
-        // Seek to specific frame (with wraparound)
-        async function seekToFrame(frameIndex) {
-            if (!videoDecoder) return;
-
-            // Modulo wraparound for looping
-            if (totalFrames > 0) {
-                frameIndex = ((frameIndex % totalFrames) + totalFrames) % totalFrames;
-            }
-
-            const startTime = performance.now();
-            const result = await videoDecoder.getFrame(frameIndex);
-            lastSeekTime = performance.now() - startTime;
-
-            // result can be null if a newer frame request superseded this one
-            if (result && result.bitmap) {
-                currentFrame = frameIndex;
-                currentBitmap = result.bitmap;
-                renderFrame(currentBitmap);
-                updateMetrics();
-                updateSeekbar();
-                renderCacheVisualization();
-
-                // Log seek performance (but not too verbose during playback)
-                if (!isPlaying) {
-                    const cacheStatus = videoDecoder.getCacheStatus();
-                    log(`Frame ${frameIndex}: ${result.fromCache ? 'cache hit' : 'decoded'} in ${lastSeekTime.toFixed(0)}ms (${cacheStatus.size}/${cacheStatus.maxSize} cached)`, result.fromCache ? 'success' : 'info');
-                }
-            }
-        }
-
-        // Render frame to canvas
-        function renderFrame(bitmap) {
-            if (!bitmap) return;
-
-            // Set canvas size on first render or if size changed
-            if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
-                canvas.width = bitmap.width;
-                canvas.height = bitmap.height;
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(offsetX, offsetY);
-            ctx.scale(scale, scale);
-            ctx.drawImage(bitmap, 0, 0);
-
-            // Render poses on top of video
-            if (sleapLoader && poseData && document.getElementById('showPoses').checked) {
-                renderPoses(ctx, currentFrame);
-            }
-
-            ctx.restore();
-        }
-
-        // ============================================
-        // Pose Rendering
-        // ============================================
-        function renderPoses(ctx, frameIndex) {
-            const framePoses = sleapLoader.getPosesForFrame(frameIndex);
-            if (!framePoses) return;
-
-            const showNodes = document.getElementById('showNodes').checked;
-            const showEdges = document.getElementById('showEdges').checked;
-            const showLabels = document.getElementById('showLabels').checked;
-            const nodeSize = parseInt(document.getElementById('nodeSize').value) || 6;
-            const edgeWidth = parseInt(document.getElementById('edgeWidth').value) || 2;
-            const opacity = (parseInt(document.getElementById('poseOpacity').value) || 100) / 100;
-
-            ctx.globalAlpha = opacity;
-
-            // Iterate through each track
-            for (let trackIdx = 0; trackIdx < framePoses.length; trackIdx++) {
-                if (!visibleTracks.has(trackIdx)) continue;
-
-                const trackNodes = framePoses[trackIdx];
-                const color = trackColors[trackIdx % trackColors.length];
-
-                // Draw edges first (behind nodes)
-                if (showEdges && sleapLoader.edges.length > 0) {
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = edgeWidth;
-                    ctx.lineCap = 'round';
-
-                    for (const [srcIdx, dstIdx] of sleapLoader.edges) {
-                        if (srcIdx >= trackNodes.length || dstIdx >= trackNodes.length) continue;
-
-                        const srcPoint = trackNodes[srcIdx];
-                        const dstPoint = trackNodes[dstIdx];
-
-                        if (!sleapLoader.isValidPoint(srcPoint) || !sleapLoader.isValidPoint(dstPoint)) continue;
-
-                        ctx.beginPath();
-                        ctx.moveTo(srcPoint[0], srcPoint[1]);
-                        ctx.lineTo(dstPoint[0], dstPoint[1]);
-                        ctx.stroke();
-                    }
-                }
-
-                // Draw nodes
-                if (showNodes) {
-                    ctx.fillStyle = color;
-
-                    for (let nodeIdx = 0; nodeIdx < trackNodes.length; nodeIdx++) {
-                        const point = trackNodes[nodeIdx];
-                        if (!sleapLoader.isValidPoint(point)) continue;
-
-                        ctx.beginPath();
-                        ctx.arc(point[0], point[1], nodeSize, 0, Math.PI * 2);
-                        ctx.fill();
-
-                        // Draw node labels
-                        if (showLabels && sleapLoader.nodeNames[nodeIdx]) {
-                            ctx.fillStyle = '#fff';
-                            ctx.font = `${Math.max(10, nodeSize * 2)}px system-ui`;
-                            ctx.fillText(sleapLoader.nodeNames[nodeIdx], point[0] + nodeSize + 2, point[1] + 4);
-                            ctx.fillStyle = color;
-                        }
-                    }
-                }
-            }
-
-            ctx.globalAlpha = 1;
-        }
-
-        // Update metrics display
-        function updateMetrics() {
-            document.getElementById('metricFile').textContent = fileName;
-            document.getElementById('metricCodec').textContent = videoInfo ? videoInfo.codec : '-';
-            document.getElementById('metricRes').textContent = videoInfo ? `${videoInfo.width}x${videoInfo.height}` : '-';
-            document.getElementById('metricFrame').textContent = currentFrame;
-            document.getElementById('metricTotal').textContent = totalFrames;
-            document.getElementById('metricFps').textContent = fps.toFixed(2);
-            document.getElementById('metricSeek').textContent = lastSeekTime.toFixed(0) + 'ms';
-
-            const cacheStatus = videoDecoder ? videoDecoder.getCacheStatus() : { size: 0, maxSize: 0 };
-            document.getElementById('metricCached').textContent = `${cacheStatus.size}/${cacheStatus.maxSize}`;
-            document.getElementById('metricKeyframes').textContent = videoInfo ? videoInfo.keyframes : '-';
-        }
-
-        // Update seekbar position
-        function updateSeekbar() {
-            const progress = totalFrames > 0 ? (currentFrame / totalFrames) * 100 : 0;
-            seekbarProgress.style.width = progress + '%';
-            seekbarThumb.style.left = progress + '%';
-        }
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            if (!videoDecoder) return;
+            if (!currentPair) return;
 
-            let delta = 0;
-
-            if (e.key === 'ArrowLeft') {
-                delta = e.ctrlKey ? -30 : -1;
-                e.preventDefault();
-            } else if (e.key === 'ArrowRight') {
-                delta = e.ctrlKey ? 30 : 1;
-                e.preventDefault();
-            } else if (e.key === 'ArrowUp') {
-                delta = e.ctrlKey ? 100 : 10;
-                e.preventDefault();
-            } else if (e.key === 'ArrowDown') {
-                delta = e.ctrlKey ? -100 : -10;
-                e.preventDefault();
-            } else if (e.key === ' ') {
-                togglePlayback();
-                e.preventDefault();
-            } else if (e.key === 'p' || e.key === 'P') {
-                // Toggle pose overlay
-                const showPoses = document.getElementById('showPoses');
-                showPoses.checked = !showPoses.checked;
-                if (currentBitmap) renderFrame(currentBitmap);
-                e.preventDefault();
-            }
-
-            if (delta !== 0) {
-                seekToFrame(currentFrame + delta);
-            }
-        });
-
-        // Seekbar scrubbing
-        let isScrubbing = false;
-
-        function handleSeekbarInteraction(e) {
-            const rect = seekbar.getBoundingClientRect();
-            const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-            const percent = x / rect.width;
-            const frame = Math.floor(percent * totalFrames);
-            seekToFrame(frame);
-        }
-
-        seekbar.addEventListener('mousedown', (e) => {
-            isScrubbing = true;
-            handleSeekbarInteraction(e);
-            e.preventDefault(); // Prevent text selection while scrubbing
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isScrubbing) {
-                handleSeekbarInteraction(e);
-            }
-        });
-
-        // Zoom with mouse wheel
-        canvasContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            scale *= delta;
-            scale = Math.max(0.1, Math.min(10, scale));
-
-            if (currentBitmap) {
-                renderFrame(currentBitmap);
-            }
-        });
-
-        // Pan with mouse drag
-        canvasContainer.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            dragStartX = e.clientX - offsetX;
-            dragStartY = e.clientY - offsetY;
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                offsetX = e.clientX - dragStartX;
-                offsetY = e.clientY - dragStartY;
-
-                if (currentBitmap) {
-                    renderFrame(currentBitmap);
-                }
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            isScrubbing = false;
-        });
-
-        // Reset zoom
-        resetZoomBtn.addEventListener('click', () => {
-            scale = 1;
-            offsetX = 0;
-            offsetY = 0;
-            if (currentBitmap) {
-                renderFrame(currentBitmap);
-            }
-        });
-
-        // Playback
-        function togglePlayback() {
-            if (isPlaying) {
-                stopPlayback();
-            } else {
-                startPlayback();
-            }
-        }
-
-        function startPlayback() {
-            if (!videoDecoder) return;
-
-            isPlaying = true;
-            playBtn.textContent = 'Pause';
-            log(`Playback started at frame ${currentFrame}`, 'info');
-
-            const interval = 1000 / fps;
-
-            playInterval = setInterval(async () => {
-                // Loop continuously - seekToFrame handles wraparound
-                await seekToFrame(currentFrame + 1);
-            }, interval);
-        }
-
-        function stopPlayback() {
-            const wasPlaying = isPlaying;
-            isPlaying = false;
-            playBtn.textContent = 'Play';
-            if (playInterval) {
-                clearInterval(playInterval);
-                playInterval = null;
-            }
-            if (wasPlaying) {
-                log(`Playback stopped at frame ${currentFrame}`, 'info');
-            }
-        }
-
-        playBtn.addEventListener('click', togglePlayback);
-
-        // Update cache size
-        bufferSizeInput.addEventListener('change', () => {
-            const newSize = parseInt(bufferSizeInput.value);
-            if (newSize >= 10 && newSize <= 500 && videoDecoder) {
-                videoDecoder.cacheSize = newSize;
-                log(`Cache size updated to ${newSize}`, 'info');
-                updateMetrics();
-                renderCacheVisualization();
-            }
-        });
-
-        // Update lookahead size
-        lookaheadInput.addEventListener('change', () => {
-            const newSize = parseInt(lookaheadInput.value);
-            if (newSize >= 1 && newSize <= 100 && videoDecoder) {
-                videoDecoder.lookahead = newSize;
-                log(`Lookahead updated to ${newSize}`, 'info');
-            }
-        });
-
-        // Re-render cache viz on window resize
-        window.addEventListener('resize', () => {
-            if (videoDecoder && totalFrames > 0) {
-                renderCacheVisualization();
-            }
-        });
-
-        // ============================================
-        // Annotation System
-        // ============================================
-        function initAnnotationSystem() {
-            const markDuplicateBtn = document.getElementById('markDuplicateBtn');
-            const markNotDuplicateBtn = document.getElementById('markNotDuplicateBtn');
-            const skipPairBtn = document.getElementById('skipPairBtn');
-
-            markDuplicateBtn.disabled = false;
-            markNotDuplicateBtn.disabled = false;
-            skipPairBtn.disabled = false;
-
-            markDuplicateBtn.addEventListener('click', () => labelCurrentPair(true));
-            markNotDuplicateBtn.addEventListener('click', () => labelCurrentPair(false));
-            skipPairBtn.addEventListener('click', () => skipCurrentPair());
-
-            // Load first unlabeled pair
-            loadNextUnlabeledPair();
-        }
-
-        function loadNextUnlabeledPair() {
-            if (!metricsComputer) return;
-
-            const pair = metricsComputer.getNextUnlabeledPair();
-            if (!pair) {
-                updateAnnotationProgress();
-                document.getElementById('pairFrame').textContent = 'All done!';
-                document.getElementById('pairTrack1').textContent = '-';
-                document.getElementById('pairTrack2').textContent = '-';
-                document.getElementById('pairIOU').textContent = '-';
-                document.getElementById('pairCentroidDist').textContent = '-';
-                document.getElementById('pairBboxCentroidDist').textContent = '-';
-                document.getElementById('pairMinNodes').textContent = '-';
-                document.getElementById('pairAvgScore').textContent = '-';
-                currentPairIndex = -1;
-                return;
-            }
-
-            currentPairIndex = metricsComputer.allPairs.indexOf(pair);
-            displayPair(pair);
-
-            // Seek video to this frame
-            if (videoDecoder) {
-                seekToFrame(pair.frame);
-            }
-        }
-
-        function displayPair(pair) {
-            document.getElementById('pairFrame').textContent = pair.frame;
-            document.getElementById('pairTrack1').textContent = poseData.trackNames[pair.track1] || `Track ${pair.track1}`;
-            document.getElementById('pairTrack2').textContent = poseData.trackNames[pair.track2] || `Track ${pair.track2}`;
-            document.getElementById('pairIOU').textContent = isNaN(pair.iou) ? 'N/A' : pair.iou.toFixed(4);
-            document.getElementById('pairCentroidDist').textContent = isNaN(pair.centroidDist) ? 'N/A' : pair.centroidDist.toFixed(2);
-            document.getElementById('pairBboxCentroidDist').textContent = isNaN(pair.bboxCentroidDist) ? 'N/A' : pair.bboxCentroidDist.toFixed(2);
-            document.getElementById('pairMinNodes').textContent = pair.minNodeCount;
-            document.getElementById('pairAvgScore').textContent = isNaN(pair.avgTrackingScore) ? 'N/A' : pair.avgTrackingScore.toFixed(4);
-
-            // Highlight the two tracks in the view
-            visibleTracks = new Set([pair.track1, pair.track2]);
-            updateTrackToggles();
-            if (currentBitmap) renderFrame(currentBitmap);
-
-            updateAnnotationProgress();
-        }
-
-        function labelCurrentPair(isDuplicate) {
-            if (currentPairIndex < 0 || !metricsComputer) return;
-
-            metricsComputer.labelPair(currentPairIndex, isDuplicate);
-            log(`Pair ${currentPairIndex} labeled as ${isDuplicate ? 'duplicate' : 'not duplicate'}`, 'success');
-
-            // Update precision/accuracy chart
-            if (thresholdManager) {
-                thresholdManager.updateChart();
-            }
-
-            loadNextUnlabeledPair();
-        }
-
-        function skipCurrentPair() {
-            if (currentPairIndex < 0 || !metricsComputer) return;
-
-            // Move to next unlabeled without labeling current
-            const skippedIndex = currentPairIndex;
-
-            // Find next unlabeled that isn't the current one
-            let nextPair = null;
-            for (let i = skippedIndex + 1; i < metricsComputer.allPairs.length; i++) {
-                if (metricsComputer.allPairs[i].label === null) {
-                    nextPair = metricsComputer.allPairs[i];
-                    currentPairIndex = i;
+            switch (e.key.toLowerCase()) {
+                case 'd':
+                    labelCurrent(true);
+                    e.preventDefault();
                     break;
-                }
-            }
-
-            if (nextPair) {
-                displayPair(nextPair);
-                if (videoDecoder) {
-                    seekToFrame(nextPair.frame);
-                }
-            } else {
-                // Wrap around to find any unlabeled pair
-                loadNextUnlabeledPair();
-            }
-
-            log(`Skipped pair ${skippedIndex}`, 'info');
-        }
-
-        function updateAnnotationProgress() {
-            if (!metricsComputer) return;
-
-            const total = metricsComputer.allPairs.length;
-            const labeled = metricsComputer.getLabeledPairs().length;
-            const duplicates = metricsComputer.allPairs.filter(p => p.label === true).length;
-            const notDuplicates = metricsComputer.allPairs.filter(p => p.label === false).length;
-
-            const progressDiv = document.getElementById('annotationProgress');
-            progressDiv.textContent = `Progress: ${labeled}/${total} labeled (${duplicates} duplicates, ${notDuplicates} not duplicates)`;
-        }
-
-        // Add keyboard shortcuts for annotation
-        document.addEventListener('keydown', (e) => {
-            // Skip if typing in an input
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-                return;
-            }
-
-            if (e.key === 'd' || e.key === 'D') {
-                if (currentPairIndex >= 0) {
-                    labelCurrentPair(true);
+                case 'n':
+                    labelCurrent(false);
                     e.preventDefault();
-                }
-            } else if (e.key === 'n' || e.key === 'N') {
-                if (currentPairIndex >= 0) {
-                    labelCurrentPair(false);
+                    break;
+                case 's':
+                    skipCurrent();
                     e.preventDefault();
-                }
-            } else if (e.key === 's' || e.key === 'S') {
-                if (currentPairIndex >= 0) {
-                    skipCurrentPair();
-                    e.preventDefault();
-                }
+                    break;
             }
         });
+
+        // Check WebCodecs support
+        if (!('VideoDecoder' in window)) {
+            showError('WebCodecs API not supported. Please use Chrome, Edge, or Firefox.');
+            loadVideoBtn.disabled = true;
+        }
     </script>
 </body>
 </html>
+
