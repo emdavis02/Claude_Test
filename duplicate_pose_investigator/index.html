@@ -17,7 +17,7 @@
         }
         h1 { margin-bottom: 0.5rem; color: #fff; }
         .description { color: #aaa; margin-top: 0; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         .panel {
             background: #2a2a2a;
             padding: 20px;
@@ -65,8 +65,68 @@
             transition: width 0.2s;
         }
         .progress-text { font-size: 12px; color: #aaa; margin-top: 5px; }
-        #histogramCanvas { width: 100%; max-height: 300px; }
+        .histogram-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        .histogram-box { flex: 1; min-width: 0; }
+        .histogram-box h4 { margin: 0 0 10px 0; color: #fff; font-size: 14px; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .histogram-box canvas { width: 100% !important; height: 100% !important; }
         .histogram-help { font-size: 12px; color: #888; margin-top: 10px; }
+        .threshold-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .threshold-controls input[type="number"] {
+            width: 70px;
+            padding: 4px 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 13px;
+        }
+        .threshold-controls select {
+            padding: 4px 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 13px;
+        }
+        .threshold-controls button {
+            padding: 4px 12px;
+            font-size: 12px;
+            margin: 0;
+        }
+        .threshold-controls label {
+            font-size: 12px;
+            color: #aaa;
+        }
+        .annotation-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .annotation-left { }
+        .annotation-right { }
+        .pr-chart-container { position: relative; height: 300px; width: 100%; }
+        @media (max-width: 900px) {
+            .annotation-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 1200px) {
+            .histogram-container { grid-template-columns: 1fr 1fr; }
+            .chart-container { height: 180px; }
+        }
+        @media (max-width: 700px) {
+            .histogram-container { grid-template-columns: 1fr; }
+            .chart-container { height: 160px; }
+        }
         .annotation-info {
             display: flex;
             justify-content: space-between;
@@ -175,7 +235,7 @@
                 <input type="file" id="poseFileInput" accept=".slp,.h5,.hdf5" style="display: none;">
                 <button id="loadVideoBtn">Load Video</button>
                 <button id="loadPoseBtn">Load Poses (.slp/.h5)</button>
-                <button id="computeBtn" disabled>Compute IOUs</button>
+                <button id="computeBtn" disabled>Compute Metrics</button>
             </div>
             <div class="status-text" id="statusText">Load video and pose files to begin</div>
             <div class="progress-container" id="progressContainer">
@@ -188,23 +248,63 @@
 
         <!-- Histogram Panel -->
         <div class="panel hidden" id="histogramPanel">
-            <h3>IOU Distribution</h3>
-            <canvas id="histogramCanvas"></canvas>
-            <div class="histogram-help">Click on bars to sample pose pairs from that IOU range. Green/red dots show your labels.</div>
+            <h3>Metric Distributions</h3>
+            <div class="histogram-container">
+                <div class="histogram-box">
+                    <h4>IOU (Bounding Box Overlap)</h4>
+                    <div class="chart-container"><canvas id="iouHistogramCanvas"></canvas></div>
+                    <div class="threshold-controls">
+                        <label>Non-dup if</label>
+                        <select id="iouOp"><option value="<">&lt;</option><option value="<=">&le;</option><option value=">">&gt;</option><option value=">=">&ge;</option></select>
+                        <input type="number" id="iouThresh" step="0.05" min="0" max="1" value="0.5">
+                        <button onclick="addThresholdPoint('iou')">Add</button>
+                    </div>
+                </div>
+                <div class="histogram-box">
+                    <h4>Centroid Distance (px)</h4>
+                    <div class="chart-container"><canvas id="centroidHistogramCanvas"></canvas></div>
+                    <div class="threshold-controls">
+                        <label>Non-dup if</label>
+                        <select id="centroidOp"><option value=">">&gt;</option><option value=">=">&ge;</option><option value="<">&lt;</option><option value="<=">&le;</option></select>
+                        <input type="number" id="centroidThresh" step="5" min="0" value="50">
+                        <button onclick="addThresholdPoint('centroidDist')">Add</button>
+                    </div>
+                </div>
+                <div class="histogram-box">
+                    <h4>BBox Centroid Distance (px)</h4>
+                    <div class="chart-container"><canvas id="bboxCentroidHistogramCanvas"></canvas></div>
+                    <div class="threshold-controls">
+                        <label>Non-dup if</label>
+                        <select id="bboxCentroidOp"><option value=">">&gt;</option><option value=">=">&ge;</option><option value="<">&lt;</option><option value="<=">&le;</option></select>
+                        <input type="number" id="bboxCentroidThresh" step="5" min="0" value="50">
+                        <button onclick="addThresholdPoint('bboxCentroidDist')">Add</button>
+                    </div>
+                </div>
+            </div>
+            <div class="histogram-help">Click on bars to sample pose pairs from that range. Green/red dots show your labels.</div>
         </div>
 
         <!-- Annotation Panel -->
         <div class="panel hidden" id="annotationPanel">
-            <h3>Pose Pair Annotation</h3>
-            <div class="annotation-info">
-                <span id="pairInfo">Frame: -- | Tracks: -- vs --</span>
-                <span>IOU: <span class="iou-value" id="pairIOU">--</span></span>
-            </div>
-            <canvas id="annotationCanvas"></canvas>
-            <div class="annotation-buttons">
-                <button class="btn-duplicate" id="duplicateBtn">Yes, Duplicate (D)</button>
-                <button class="btn-not-duplicate" id="notDuplicateBtn">No, Not Duplicate (N)</button>
-                <button class="btn-skip" id="skipBtn">Skip (S)</button>
+            <div class="annotation-row">
+                <div class="annotation-left">
+                    <h3>Pose Pair Annotation</h3>
+                    <div class="annotation-info">
+                        <span id="pairInfo">Frame: -- | Tracks: -- vs --</span>
+                        <span>IOU: <span class="iou-value" id="pairIOU">--</span> | Centroid: <span class="iou-value" id="pairCentroid">--</span>px | BBox: <span class="iou-value" id="pairBboxCentroid">--</span>px</span>
+                    </div>
+                    <canvas id="annotationCanvas"></canvas>
+                    <div class="annotation-buttons">
+                        <button class="btn-duplicate" id="duplicateBtn">Yes, Duplicate (D)</button>
+                        <button class="btn-not-duplicate" id="notDuplicateBtn">No, Not Duplicate (N)</button>
+                        <button class="btn-skip" id="skipBtn">Skip (S)</button>
+                    </div>
+                </div>
+                <div class="annotation-right">
+                    <h3>Precision vs Accuracy</h3>
+                    <div class="pr-chart-container"><canvas id="precisionAccuracyCanvas"></canvas></div>
+                    <div style="font-size: 12px; color: #888; margin-top: 10px;">Add threshold rules above to plot points. Hover for details.</div>
+                </div>
             </div>
         </div>
 
@@ -612,20 +712,8 @@
                 try {
                     const metadataJson = metadataGroup.attrs['json'];
                     if (metadataJson) {
-                        let jsonStr;
-                        if (typeof metadataJson === 'string') {
-                            jsonStr = metadataJson;
-                        } else if (metadataJson.value instanceof Uint8Array) {
-                            jsonStr = new TextDecoder().decode(metadataJson.value);
-                        } else if (metadataJson.value instanceof ArrayBuffer) {
-                            jsonStr = new TextDecoder().decode(new Uint8Array(metadataJson.value));
-                        } else if (ArrayBuffer.isView(metadataJson.value)) {
-                            jsonStr = new TextDecoder().decode(new Uint8Array(metadataJson.value.buffer));
-                        } else if (metadataJson instanceof Uint8Array) {
-                            jsonStr = new TextDecoder().decode(metadataJson);
-                        } else {
-                            jsonStr = String(metadataJson.value || metadataJson);
-                        }
+                        const jsonStr = typeof metadataJson === 'string' ? metadataJson :
+                            (metadataJson.value ? new TextDecoder().decode(metadataJson.value) : String(metadataJson));
                         metadata = JSON.parse(jsonStr);
                     }
                 } catch (e) { log('Could not parse metadata: ' + e.message, 'warn'); }
@@ -655,18 +743,9 @@
                 const instancesData = h5file.get('instances');
                 const predPointsData = h5file.get('pred_points');
 
-                if (!framesData || !instancesData || !predPointsData) {
-                    throw new Error('Missing required datasets');
-                }
-
-                const frames = framesData.value;
-                const instances = instancesData.value;
-                const predPoints = predPointsData.value;
-                this.numFrames = frames.length;
-
                 // Infer numNodes from instances if metadata parsing failed
-                if (this.numNodes === 0 && instances.length > 0) {
-                    const inst = instances[0];
+                if (this.numNodes === 0 && instancesData && instancesData.value.length > 0) {
+                    const inst = instancesData.value[0];
                     const pointStart = Number(inst.point_id_start !== undefined ? inst.point_id_start : inst[7]);
                     const pointEnd = Number(inst.point_id_end !== undefined ? inst.point_id_end : inst[8]);
                     this.numNodes = pointEnd - pointStart;
@@ -677,7 +756,23 @@
                     for (let i = 0; i < this.numNodes; i++) {
                         this.nodeNames.push(`node_${i}`);
                     }
+
+                    // Generate default edges
+                    if (this.edges.length === 0 && this.numNodes > 1) {
+                        for (let i = 0; i < this.numNodes - 1; i++) {
+                            this.edges.push([i, i + 1]);
+                        }
+                    }
                 }
+
+                if (!framesData || !instancesData || !predPointsData) {
+                    throw new Error('Missing required datasets');
+                }
+
+                const frames = framesData.value;
+                const instances = instancesData.value;
+                const predPoints = predPointsData.value;
+                this.numFrames = frames.length;
 
                 this.tracks = new Array(this.numFrames);
                 for (let f = 0; f < this.numFrames; f++) {
@@ -726,9 +821,9 @@
         }
 
         // ============================================
-        // IOU Computer
+        // Metrics Computer (IOU + Centroid Distance)
         // ============================================
-        class IOUComputer {
+        class MetricsComputer {
             constructor(sleapLoader) {
                 this.sleapLoader = sleapLoader;
                 this.pairs = [];
@@ -749,6 +844,31 @@
                 }
 
                 return hasValid ? { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY } : null;
+            }
+
+            computeCentroid(poseNodes) {
+                let sumX = 0, sumY = 0, count = 0;
+                for (const node of poseNodes) {
+                    if (this.sleapLoader.isValidPoint(node)) {
+                        sumX += node[0];
+                        sumY += node[1];
+                        count++;
+                    }
+                }
+                return count > 0 ? { x: sumX / count, y: sumY / count } : null;
+            }
+
+            computeCentroidDistance(centroid1, centroid2) {
+                const dx = centroid1.x - centroid2.x;
+                const dy = centroid1.y - centroid2.y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            computeBboxCentroid(bbox) {
+                return {
+                    x: (bbox.minX + bbox.maxX) / 2,
+                    y: (bbox.minY + bbox.maxY) / 2
+                };
             }
 
             computeIOU(bbox1, bbox2) {
@@ -776,21 +896,28 @@
                     const framePoses = this.sleapLoader.getPosesForFrame(f);
                     if (!framePoses) continue;
 
-                    // Compute bounding boxes for all tracks
+                    // Compute bounding boxes and centroids for all tracks
                     const bboxes = [];
+                    const centroids = [];
                     for (let t = 0; t < numTracks; t++) {
                         bboxes.push(this.computeBoundingBox(framePoses[t]));
+                        centroids.push(this.computeCentroid(framePoses[t]));
                     }
 
-                    // Compute pairwise IOUs
+                    // Compute pairwise metrics
                     for (let t1 = 0; t1 < numTracks; t1++) {
-                        if (!bboxes[t1]) continue;
+                        if (!bboxes[t1] || !centroids[t1]) continue;
                         for (let t2 = t1 + 1; t2 < numTracks; t2++) {
-                            if (!bboxes[t2]) continue;
+                            if (!bboxes[t2] || !centroids[t2]) continue;
 
                             const iou = this.computeIOU(bboxes[t1], bboxes[t2]);
+                            const centroidDist = this.computeCentroidDistance(centroids[t1], centroids[t2]);
+                            const bboxCentroid1 = this.computeBboxCentroid(bboxes[t1]);
+                            const bboxCentroid2 = this.computeBboxCentroid(bboxes[t2]);
+                            const bboxCentroidDist = this.computeCentroidDistance(bboxCentroid1, bboxCentroid2);
+
                             if (iou > 0) {  // Only store pairs with overlap
-                                this.pairs.push({ frame: f, track1: t1, track2: t2, iou });
+                                this.pairs.push({ frame: f, track1: t1, track2: t2, iou, centroidDist, bboxCentroidDist });
                             }
                         }
                     }
@@ -800,8 +927,8 @@
                 return this.pairs;
             }
 
-            getPairsInRange(minIOU, maxIOU) {
-                return this.pairs.filter(p => p.iou >= minIOU && p.iou < maxIOU);
+            getPairsInRange(metric, minVal, maxVal) {
+                return this.pairs.filter(p => p[metric] >= minVal && p[metric] < maxVal);
             }
         }
 
@@ -848,23 +975,44 @@
         // Histogram Controller
         // ============================================
         class HistogramController {
-            constructor(canvasId, annotationManager) {
+            constructor(canvasId, annotationManager, metricKey, options = {}) {
                 this.canvas = document.getElementById(canvasId);
                 this.chart = null;
                 this.annotationManager = annotationManager;
-                this.binCount = 20;
+                this.metricKey = metricKey;
+                this.binCount = options.binCount || 20;
+                this.minVal = options.minVal || 0;
+                this.maxVal = options.maxVal || 1;
+                this.xLabel = options.xLabel || metricKey;
                 this.pairs = [];
                 this.onRangeSelected = null;
             }
 
+            setRange(minVal, maxVal) {
+                this.minVal = minVal;
+                this.maxVal = maxVal;
+            }
+
             render(pairs) {
                 this.pairs = pairs;
+
+                // Auto-compute range for distance metrics
+                if ((this.metricKey === 'centroidDist' || this.metricKey === 'bboxCentroidDist') && pairs.length > 0) {
+                    const values = pairs.map(p => p[this.metricKey]).filter(v => !isNaN(v));
+                    this.minVal = 0;
+                    this.maxVal = Math.ceil(Math.max(...values) / 10) * 10; // Round up to nearest 10
+                }
+
+                const binSize = (this.maxVal - this.minVal) / this.binCount;
                 const bins = new Array(this.binCount).fill(0);
                 const duplicateBins = new Array(this.binCount).fill(0);
                 const notDuplicateBins = new Array(this.binCount).fill(0);
 
                 for (const pair of pairs) {
-                    const binIndex = Math.min(Math.floor(pair.iou * this.binCount), this.binCount - 1);
+                    const val = pair[this.metricKey];
+                    if (isNaN(val)) continue;
+                    const binIndex = Math.min(Math.floor((val - this.minVal) / binSize), this.binCount - 1);
+                    if (binIndex < 0) continue;
                     bins[binIndex]++;
 
                     const label = this.annotationManager.getLabel(pair.frame, pair.track1, pair.track2);
@@ -872,11 +1020,19 @@
                     else if (label === false) notDuplicateBins[binIndex]++;
                 }
 
-                const labels = Array.from({ length: this.binCount }, (_, i) =>
-                    `${(i * 0.05).toFixed(2)}-${((i + 1) * 0.05).toFixed(2)}`);
+                const labels = Array.from({ length: this.binCount }, (_, i) => {
+                    const lo = this.minVal + i * binSize;
+                    const hi = this.minVal + (i + 1) * binSize;
+                    if (this.metricKey === 'iou') {
+                        return `${lo.toFixed(2)}-${hi.toFixed(2)}`;
+                    } else {
+                        return `${lo.toFixed(0)}-${hi.toFixed(0)}`;
+                    }
+                });
 
                 if (this.chart) this.chart.destroy();
 
+                const self = this;
                 this.chart = new Chart(this.canvas, {
                     type: 'bar',
                     data: {
@@ -890,7 +1046,7 @@
                                 borderWidth: 1
                             },
                             {
-                                label: 'Labeled Duplicate',
+                                label: 'Duplicates',
                                 data: duplicateBins,
                                 backgroundColor: 'rgba(34, 197, 94, 0.8)',
                                 borderColor: 'rgba(34, 197, 94, 1)',
@@ -898,7 +1054,7 @@
                                 type: 'bar'
                             },
                             {
-                                label: 'Labeled Not Duplicate',
+                                label: 'Not Duplicates',
                                 data: notDuplicateBins,
                                 backgroundColor: 'rgba(239, 68, 68, 0.8)',
                                 borderColor: 'rgba(239, 68, 68, 1)',
@@ -909,20 +1065,21 @@
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
                         onClick: (e, elements) => {
-                            if (elements.length > 0 && this.onRangeSelected) {
+                            if (elements.length > 0 && self.onRangeSelected) {
                                 const binIndex = elements[0].index;
-                                const minIOU = binIndex * 0.05;
-                                const maxIOU = (binIndex + 1) * 0.05;
-                                this.onRangeSelected(minIOU, maxIOU);
+                                const minV = self.minVal + binIndex * binSize;
+                                const maxV = self.minVal + (binIndex + 1) * binSize;
+                                self.onRangeSelected(minV, maxV);
                             }
                         },
                         scales: {
-                            x: { title: { display: true, text: 'IOU Range', color: '#aaa' }, ticks: { color: '#888' }, grid: { color: '#333' } },
+                            x: { title: { display: true, text: this.xLabel, color: '#aaa' }, ticks: { color: '#888', maxRotation: 45 }, grid: { color: '#333' } },
                             y: { title: { display: true, text: 'Count', color: '#aaa' }, beginAtZero: true, ticks: { color: '#888' }, grid: { color: '#333' } }
                         },
                         plugins: {
-                            legend: { labels: { color: '#aaa' } }
+                            legend: { display: false }
                         }
                     }
                 });
@@ -1026,19 +1183,191 @@
         }
 
         // ============================================
+        // Threshold & Precision/Accuracy Manager
+        // ============================================
+        class ThresholdManager {
+            constructor(annotationManager) {
+                this.annotationManager = annotationManager;
+                this.thresholdRules = [];  // Store rules, not computed points
+                this.pairs = [];
+                this.chart = null;
+                this.canvas = document.getElementById('precisionAccuracyCanvas');
+                this.metricColors = {
+                    'iou': '#667eea',
+                    'centroidDist': '#f59e0b',
+                    'bboxCentroidDist': '#10b981'
+                };
+                this.metricNames = {
+                    'iou': 'IOU',
+                    'centroidDist': 'Centroid Dist',
+                    'bboxCentroidDist': 'BBox Centroid Dist'
+                };
+            }
+
+            setPairs(pairs) {
+                this.pairs = pairs;
+            }
+
+            addThreshold(metric, op, threshold) {
+                // Check if this rule already exists
+                const exists = this.thresholdRules.some(r =>
+                    r.metric === metric && r.op === op && r.threshold === threshold
+                );
+                if (exists) {
+                    log('This threshold rule already exists', 'warn');
+                    return;
+                }
+
+                this.thresholdRules.push({ metric, op, threshold });
+                log(`Added threshold rule: ${this.metricNames[metric]} ${op} ${threshold}`, 'success');
+                this.update();
+            }
+
+            update() {
+                // Recompute all threshold points with current labels
+                if (this.thresholdRules.length === 0) return;
+                this.render();
+            }
+
+            computeStats(metric, op, threshold, pairs) {
+                let tp = 0, fp = 0, tn = 0, fn = 0;
+
+                for (const pair of pairs) {
+                    const label = this.annotationManager.getLabel(pair.frame, pair.track1, pair.track2);
+                    if (label === undefined) continue;
+
+                    const value = pair[metric];
+                    let predictNotDuplicate = false;
+
+                    switch (op) {
+                        case '<': predictNotDuplicate = value < threshold; break;
+                        case '<=': predictNotDuplicate = value <= threshold; break;
+                        case '>': predictNotDuplicate = value > threshold; break;
+                        case '>=': predictNotDuplicate = value >= threshold; break;
+                    }
+
+                    const actualNotDuplicate = !label;
+
+                    if (predictNotDuplicate && actualNotDuplicate) tn++;
+                    else if (predictNotDuplicate && !actualNotDuplicate) fn++;
+                    else if (!predictNotDuplicate && actualNotDuplicate) fp++;
+                    else if (!predictNotDuplicate && !actualNotDuplicate) tp++;
+                }
+
+                const total = tp + fp + tn + fn;
+                const precision = (tp + fp) > 0 ? tp / (tp + fp) : 0;
+                const accuracy = total > 0 ? (tp + tn) / total : 0;
+
+                return { tp, fp, tn, fn, total, precision, accuracy };
+            }
+
+            render() {
+                if (this.chart) this.chart.destroy();
+
+                const datasets = [];
+                const metricGroups = {};
+
+                // Compute stats for each rule with current labels
+                for (const rule of this.thresholdRules) {
+                    const stats = this.computeStats(rule.metric, rule.op, rule.threshold, this.pairs);
+                    if (stats.total === 0) continue;
+
+                    if (!metricGroups[rule.metric]) {
+                        metricGroups[rule.metric] = [];
+                    }
+                    metricGroups[rule.metric].push({
+                        ...rule,
+                        ...stats
+                    });
+                }
+
+                for (const metric of Object.keys(metricGroups)) {
+                    datasets.push({
+                        label: this.metricNames[metric],
+                        data: metricGroups[metric].map(p => ({
+                            x: p.accuracy * 100,
+                            y: p.precision * 100,
+                            metric: p.metric,
+                            op: p.op,
+                            threshold: p.threshold,
+                            tp: p.tp,
+                            fp: p.fp,
+                            tn: p.tn,
+                            fn: p.fn
+                        })),
+                        backgroundColor: this.metricColors[metric],
+                        borderColor: this.metricColors[metric],
+                        pointRadius: 8,
+                        pointHoverRadius: 12
+                    });
+                }
+
+                this.chart = new Chart(this.canvas, {
+                    type: 'scatter',
+                    data: { datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Accuracy (%)', color: '#aaa' },
+                                min: 0, max: 100,
+                                ticks: { color: '#888' },
+                                grid: { color: '#333' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Precision (%)', color: '#aaa' },
+                                min: 0, max: 100,
+                                ticks: { color: '#888' },
+                                grid: { color: '#333' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#aaa' } },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        const d = ctx.raw;
+                                        return [
+                                            `${this.metricNames[d.metric]} ${d.op} ${d.threshold}`,
+                                            `Precision: ${d.y.toFixed(1)}%`,
+                                            `Accuracy: ${d.x.toFixed(1)}%`,
+                                            `TP:${d.tp} FP:${d.fp} TN:${d.tn} FN:${d.fn}`
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            clear() {
+                this.thresholdRules = [];
+                this.pairs = [];
+                if (this.chart) this.chart.destroy();
+                this.chart = null;
+            }
+        }
+
+        // ============================================
         // Main Application
         // ============================================
         let videoDecoder = null;
         let sleapLoader = null;
-        let iouComputer = null;
+        let metricsComputer = null;
         let annotationManager = new AnnotationManager();
-        let histogramController = null;
+        let thresholdManager = null;
+        let iouHistogram = null;
+        let centroidHistogram = null;
+        let bboxCentroidHistogram = null;
         let pairRenderer = null;
 
         let allPairs = [];
         let currentPairs = [];
         let currentPairIndex = -1;
         let currentPair = null;
+        let currentMetric = 'iou';
 
         // UI Elements
         const loadVideoBtn = document.getElementById('loadVideoBtn');
@@ -1075,7 +1404,7 @@
         function checkReadyToCompute() {
             computeBtn.disabled = !(videoLoaded && posesLoaded);
             if (videoLoaded && posesLoaded) {
-                updateStatus('Ready to compute IOUs. Click "Compute IOUs" to begin.', true);
+                updateStatus('Ready to compute metrics. Click "Compute Metrics" to begin.', true);
             }
         }
 
@@ -1130,23 +1459,23 @@
             }
         });
 
-        // Compute IOUs
+        // Compute metrics
         computeBtn.addEventListener('click', async () => {
             hideError();
             computeBtn.disabled = true;
             progressContainer.style.display = 'block';
             progressFill.style.width = '0%';
-            progressText.textContent = 'Computing IOUs...';
+            progressText.textContent = 'Computing metrics...';
 
             try {
-                iouComputer = new IOUComputer(sleapLoader);
+                metricsComputer = new MetricsComputer(sleapLoader);
 
                 // Compute with progress updates
                 await new Promise(resolve => {
                     setTimeout(() => {
-                        allPairs = iouComputer.computeAllPairs((progress) => {
+                        allPairs = metricsComputer.computeAllPairs((progress) => {
                             progressFill.style.width = (progress * 100) + '%';
-                            progressText.textContent = `Computing IOUs... ${Math.round(progress * 100)}%`;
+                            progressText.textContent = `Computing metrics... ${Math.round(progress * 100)}%`;
                         });
                         resolve();
                     }, 50);
@@ -1157,10 +1486,30 @@
                 progressContainer.style.display = 'none';
                 updateStatus(`Found ${allPairs.length} overlapping pose pairs`, true);
 
-                // Initialize components
-                histogramController = new HistogramController('histogramCanvas', annotationManager);
-                histogramController.onRangeSelected = selectRange;
-                histogramController.render(allPairs);
+                // Initialize IOU histogram
+                iouHistogram = new HistogramController('iouHistogramCanvas', annotationManager, 'iou', {
+                    binCount: 20, minVal: 0, maxVal: 1, xLabel: 'IOU'
+                });
+                iouHistogram.onRangeSelected = (minV, maxV) => selectRange('iou', minV, maxV);
+                iouHistogram.render(allPairs);
+
+                // Initialize Centroid Distance histogram
+                centroidHistogram = new HistogramController('centroidHistogramCanvas', annotationManager, 'centroidDist', {
+                    binCount: 20, xLabel: 'Centroid Dist (px)'
+                });
+                centroidHistogram.onRangeSelected = (minV, maxV) => selectRange('centroidDist', minV, maxV);
+                centroidHistogram.render(allPairs);
+
+                // Initialize BBox Centroid Distance histogram
+                bboxCentroidHistogram = new HistogramController('bboxCentroidHistogramCanvas', annotationManager, 'bboxCentroidDist', {
+                    binCount: 20, xLabel: 'BBox Centroid Dist (px)'
+                });
+                bboxCentroidHistogram.onRangeSelected = (minV, maxV) => selectRange('bboxCentroidDist', minV, maxV);
+                bboxCentroidHistogram.render(allPairs);
+
+                // Initialize threshold manager
+                thresholdManager = new ThresholdManager(annotationManager);
+                thresholdManager.setPairs(allPairs);
 
                 pairRenderer = new PosePairRenderer('annotationCanvas', videoDecoder, sleapLoader);
 
@@ -1172,32 +1521,53 @@
                 updateSummary();
 
             } catch (err) {
-                log(`Error computing IOUs: ${err.message}`, 'error');
-                showError('Error computing IOUs: ' + err.message);
+                log(`Error computing metrics: ${err.message}`, 'error');
+                showError('Error computing metrics: ' + err.message);
                 progressContainer.style.display = 'none';
                 computeBtn.disabled = false;
             }
         });
 
-        // Select IOU range from histogram
-        function selectRange(minIOU, maxIOU) {
-            log(`Selected IOU range: ${minIOU.toFixed(2)} - ${maxIOU.toFixed(2)}`, 'info');
+        let allRangePairs = [];  // All pairs in current range (for relabeling)
+        let relabelMode = false;
 
-            // Get unlabeled pairs in this range
-            currentPairs = allPairs.filter(p =>
-                p.iou >= minIOU && p.iou < maxIOU &&
-                annotationManager.getLabel(p.frame, p.track1, p.track2) === undefined
+        // Select range from histogram
+        function selectRange(metric, minVal, maxVal) {
+            currentMetric = metric;
+            const metricLabel = metric === 'iou' ? 'IOU' : (metric === 'centroidDist' ? 'Centroid Distance' : 'BBox Centroid Distance');
+            log(`Selected ${metricLabel} range: ${minVal.toFixed(2)} - ${maxVal.toFixed(2)}`, 'info');
+
+            // Get all pairs in this range
+            allRangePairs = allPairs.filter(p =>
+                p[metric] >= minVal && p[metric] < maxVal
             );
 
-            if (currentPairs.length === 0) {
-                log('All pairs in this range have been labeled', 'warn');
-                document.getElementById('pairInfo').textContent = 'All pairs in this range labeled';
+            if (allRangePairs.length === 0) {
+                log('No pairs in this range', 'warn');
+                document.getElementById('pairInfo').textContent = 'No pairs in this range';
                 document.getElementById('pairIOU').textContent = '--';
+                document.getElementById('pairCentroid').textContent = '--';
+                document.getElementById('pairBboxCentroid').textContent = '--';
                 return;
             }
 
-            // Pick random pair
-            currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+            // Get unlabeled pairs only
+            currentPairs = allRangePairs.filter(p =>
+                annotationManager.getLabel(p.frame, p.track1, p.track2) === undefined
+            );
+
+            if (currentPairs.length > 0) {
+                relabelMode = false;
+                currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+                log(`${currentPairs.length} unlabeled pairs in this range`, 'info');
+            } else {
+                // All labeled - enter relabel mode
+                relabelMode = true;
+                currentPairs = [...allRangePairs];
+                currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+                log('All pairs labeled - entering relabel mode', 'info');
+            }
+
             showCurrentPair();
         }
 
@@ -1205,9 +1575,16 @@
             if (currentPairIndex < 0 || currentPairIndex >= currentPairs.length) return;
 
             currentPair = currentPairs[currentPairIndex];
-            document.getElementById('pairInfo').textContent =
-                `Frame: ${currentPair.frame} | Track ${currentPair.track1} vs Track ${currentPair.track2}`;
+            const existingLabel = annotationManager.getLabel(currentPair.frame, currentPair.track1, currentPair.track2);
+
+            let infoText = `Frame: ${currentPair.frame} | Track ${currentPair.track1} vs Track ${currentPair.track2}`;
+            if (relabelMode && existingLabel !== undefined) {
+                infoText += existingLabel ? ' [Current: Duplicate]' : ' [Current: Not Duplicate]';
+            }
+            document.getElementById('pairInfo').textContent = infoText;
             document.getElementById('pairIOU').textContent = currentPair.iou.toFixed(3);
+            document.getElementById('pairCentroid').textContent = currentPair.centroidDist.toFixed(1);
+            document.getElementById('pairBboxCentroid').textContent = currentPair.bboxCentroidDist.toFixed(1);
 
             await pairRenderer.renderPair(currentPair.frame, currentPair.track1, currentPair.track2);
         }
@@ -1216,42 +1593,70 @@
             if (!currentPair) return;
 
             annotationManager.addLabel(currentPair.frame, currentPair.track1, currentPair.track2, isDuplicate);
-            log(`Labeled frame ${currentPair.frame} tracks ${currentPair.track1}-${currentPair.track2} as ${isDuplicate ? 'DUPLICATE' : 'NOT duplicate'}`,
-                isDuplicate ? 'success' : 'info');
 
-            // Update histogram
-            histogramController.render(allPairs);
+            if (relabelMode) {
+                log(`Relabeled frame ${currentPair.frame} tracks ${currentPair.track1}-${currentPair.track2} as ${isDuplicate ? 'DUPLICATE' : 'NOT duplicate'}`, 'warn');
+            } else {
+                log(`Labeled frame ${currentPair.frame} tracks ${currentPair.track1}-${currentPair.track2} as ${isDuplicate ? 'DUPLICATE' : 'NOT duplicate'}`,
+                    isDuplicate ? 'success' : 'info');
+            }
+
+            // Update all histograms
+            iouHistogram.render(allPairs);
+            centroidHistogram.render(allPairs);
+            bboxCentroidHistogram.render(allPairs);
             updateSummary();
+
+            // Update precision/accuracy plot with new labels
+            if (thresholdManager) {
+                thresholdManager.update();
+            }
 
             // Move to next pair
             nextPair();
         }
 
         function skipCurrent() {
-            if (!currentPair) return;
+            if (!currentPair || currentPairs.length <= 1) return;
             log(`Skipped frame ${currentPair.frame}`, 'info');
-            currentPairs.splice(currentPairIndex, 1);
 
-            if (currentPairs.length > 0) {
-                currentPairIndex = currentPairIndex % currentPairs.length;
-                showCurrentPair();
-            } else {
-                document.getElementById('pairInfo').textContent = 'No more pairs in this range';
-                document.getElementById('pairIOU').textContent = '--';
-                currentPair = null;
-            }
+            // Move to a different pair without removing current
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * currentPairs.length);
+            } while (newIndex === currentPairIndex);
+            currentPairIndex = newIndex;
+            showCurrentPair();
         }
 
         function nextPair() {
-            currentPairs.splice(currentPairIndex, 1);
-
-            if (currentPairs.length > 0) {
-                currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+            if (relabelMode) {
+                // In relabel mode, just move to next pair (don't remove)
+                if (currentPairs.length <= 1) {
+                    showCurrentPair();
+                    return;
+                }
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * currentPairs.length);
+                } while (newIndex === currentPairIndex);
+                currentPairIndex = newIndex;
                 showCurrentPair();
             } else {
-                document.getElementById('pairInfo').textContent = 'All pairs in this range labeled';
-                document.getElementById('pairIOU').textContent = '--';
-                currentPair = null;
+                // Normal mode: remove labeled pair and move to next
+                currentPairs.splice(currentPairIndex, 1);
+
+                if (currentPairs.length > 0) {
+                    currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+                    showCurrentPair();
+                } else {
+                    // All pairs in range are now labeled - enter relabel mode
+                    relabelMode = true;
+                    currentPairs = [...allRangePairs];
+                    currentPairIndex = Math.floor(Math.random() * currentPairs.length);
+                    log('All pairs in this range labeled! Click a histogram bar to select a new range, or continue to review/relabel.', 'success');
+                    showCurrentPair();
+                }
             }
         }
 
@@ -1305,6 +1710,33 @@
         if (!('VideoDecoder' in window)) {
             showError('WebCodecs API not supported. Please use Chrome, Edge, or Firefox.');
             loadVideoBtn.disabled = true;
+        }
+
+        // Global function for threshold buttons
+        function addThresholdPoint(metric) {
+            if (!thresholdManager || allPairs.length === 0) {
+                log('Load data and compute metrics first', 'warn');
+                return;
+            }
+
+            let op, threshold;
+            if (metric === 'iou') {
+                op = document.getElementById('iouOp').value;
+                threshold = parseFloat(document.getElementById('iouThresh').value);
+            } else if (metric === 'centroidDist') {
+                op = document.getElementById('centroidOp').value;
+                threshold = parseFloat(document.getElementById('centroidThresh').value);
+            } else if (metric === 'bboxCentroidDist') {
+                op = document.getElementById('bboxCentroidOp').value;
+                threshold = parseFloat(document.getElementById('bboxCentroidThresh').value);
+            }
+
+            if (isNaN(threshold)) {
+                log('Invalid threshold value', 'error');
+                return;
+            }
+
+            thresholdManager.addThreshold(metric, op, threshold);
         }
     </script>
 </body>
